@@ -1,68 +1,65 @@
-import { CreditCard, Wallet, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2, ArrowLeftRight } from 'lucide-react';
 import Navbar from '../../components/common/Navbar';
-import img1 from '../../assets/ManageMenu1.png';
+import { orderItems } from '../../data/mockData';
 
 export default function Checkout() {
 
+  const total = orderItems.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0);
+
   return (
-    <main >
+    <div className="min-h-screen bg-ui-mainBg pb-12">
       <Navbar />
 
-      <section>
-        <h1>Checkout</h1>
+      <main className="max-w-xl mx-auto mt-8 md:mt-12 px-6">
+        <h1 className="text-3xl md:text-4xl font-bold text-center text-content-paragraph mb-10 tracking-tight">
+          Checkout
+        </h1>
 
-        <section>
-          <h2>Payment Method</h2>
-          <div>
-            <div>
-              <div>
-                <div><CreditCard size={18} /></div>
-                <div>
-                  <p>Credit Card</p>
-                  <p>**** **** **** 4582</p>
-                </div>
-              </div>
-              <CheckCircle2 size={20} className="text-orange-500" />
+        <section className="bg-ui-white rounded-2xl p-8 mb-6 border border-ui-border">
+          <h2 className="text-xs font-black text-content-subtitle uppercase tracking-[0.2em] mb-4">Payment Method</h2>
+          <div className="flex items-center justify-between p-5 rounded-2xl border-2 transition-all duration-300 cursor-pointer border-brand-primary bg-white">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-ui-mainBg rounded-xl"><ArrowLeftRight size={20} className="text-content-paragraph" /></div>
+              <p className="text-sm font-bold text-content-paragraph">Bank Transfer</p>
             </div>
-
-            <div>
-              <div>
-                <div><Wallet size={18} /></div>
-                <p>BOP Pay</p>
-              </div>
-              <CheckCircle2 size={20} className="text-orange-500" />
-            </div>
+            <CheckCircle2 size={22} className="text-brand-primary" />
           </div>
         </section>
 
-        <section>
-          <h2>Order Summary</h2>
+        <section className="bg-ui-white rounded-2xl p-8 border border-ui-border">
+          <h2 className="text-xs font-black text-content-subtitle uppercase tracking-[0.2em] mb-8">Order Summary</h2>
 
-          <div>
-            <div key={1}>
-              <div>
-                <img src={img1} alt="name" />
-                <div>
-                  <h4>Classic Burger</h4>
-                  <span>Quantity: 1</span>
+          <div className="space-y-6">
+            {orderItems.map((item) => (
+              <div key={item.id} className="flex items-center justify-between">
+                <div className="flex gap-4">
+                  <div className="relative">
+                    <img src={item.img} alt={item.name} className="w-16 h-16 rounded-2xl object-cover border border-ui-border" />
+                    <span className="absolute -top-2 -right-2 bg-brand-primary text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">
+                      {item.quantity}
+                    </span>
+                  </div>
+                  <div className="flex flex-col justify-center">
+                    <h4 className="text-sm font-bold text-content-paragraph">{item.name}</h4>
+                    <span className="text-xs text-brand-primary font-medium"> Quantity: {item.quantity}</span>
+                  </div>
                 </div>
+                <span className="text-sm font-bold text-content-paragraph">${item.price.toFixed(2)}</span>
               </div>
-              <span>$12.99</span>
-            </div>
+            ))}
           </div>
 
-          <div>
-            <span>Total</span>
-            <span>$12.99</span>
+          <div className="border-t border-dashed border-content-paragraph mt-8 pt-6 flex justify-between items-center">
+            <span className="text-sm font-bold text-content-paragraph uppercase tracking-wider">Total Amount</span>
+            <span className="text-3xl font-black text-brand-primary">${total.toFixed(2)}</span>
           </div>
         </section>
 
-        <button>
+        <button className="w-full mt-10 bg-brand-primary text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-brand-hover transition-all transform active:scale-95 cursor-pointer">
           Place Order
-          <ArrowRight size={20} />
+          <ArrowRight size={22} />
         </button>
-      </section>
-    </main>
+      </main>
+    </div>
   );
-};
-
+}

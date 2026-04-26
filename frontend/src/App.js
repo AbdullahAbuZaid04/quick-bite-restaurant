@@ -1,8 +1,8 @@
-import Register from "./pages/auth/Register";
+import Home from "./pages/user/Home";
 
 function App() {
   return (
-    <Register />
+    <Home />
   );
 }
 
