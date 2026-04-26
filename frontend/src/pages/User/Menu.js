@@ -1,74 +1,91 @@
+import { useState } from 'react';
 import { Search, Plus, ArrowRight } from 'lucide-react';
 import Navbar from '../../components/common/Navbar';
-import img1 from '../../assets/ManageMenu1.png';
+import { MenuProducts, MenuCategories } from '../../data/mockData';
 
 export default function Menu() {
+  const [activeTab, setActiveTab] = useState("All");
+
+  const filteredProducts = activeTab === "All"
+    ? MenuProducts
+    : MenuProducts.filter(p => p.category === activeTab);
 
   return (
-    <main>
+    <div className="min-h-screen bg-ui-mainBg pb-20">
       <Navbar />
 
-      <header>
-        <div>
-          <h1>Our Culinary Selection</h1>
-          <p>
-            Curated dishes prepared with seasonal ingredients by our master chefs.
-          </p>
-        </div>
-        <div>
-          <Search size={18} />
-          <input
-            type="text"
-            placeholder="Search your cravings..."
-          />
-        </div>
-      </header>
-
-      <div>
-        <button>
-          All
-        </button>
-        <button>
-          Burgers
-        </button>
-        <button>
-          Pizza
-        </button>
-        <button>
-          Pasta
-        </button>
-        <button>
-          Desserts
-        </button>
-      </div>
-
       <main>
-        <div>
-          <div>
-            <img src={img1} alt="Classic Burger" />
-          </div>
-
-          <div>
-            <div>
-              <span>Burgers</span>
-              <span>$12.99</span>
-            </div>
-            <h3>Classic Burger</h3>
-            <p>
-              A timeless classic with premium beef, fresh lettuce, tomatoes, and our secret sauce.
+        <section className="max-w-7xl mx-auto px-6 md:px-10 mt-8 md:mt-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+          <div className="max-w-2xl">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-content-title mb-3 tracking-tight">
+              Our <span className="text-brand-primary">Menu</span>
+            </h1>
+            <p className="text-content-paragraph text-lg leading-relaxed">
+              Curated dishes prepared with seasonal ingredients by our master chefs.
             </p>
-
-            <div>
-              <button>
-                View Details <ArrowRight size={14} />
-              </button>
-              <button>
-                <Plus size={20} />
-              </button>
-            </div>
           </div>
-        </div>
+          <div className="relative w-full md:w-80 group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-content-subtitle group-focus-within:text-brand-primary transition-colors" size={20} />
+            <input
+              type="text"
+              placeholder="Search your cravings..."
+              className="w-full bg-ui-card py-4 pl-12 pr-4 rounded-2xl text-sm outline-none border border-ui-border focus:border-brand-primary transition-all"
+            />
+          </div>
+        </section>
+
+        <section className="max-w-7xl mx-auto px-4 md:px-10 mt-8 md:mt-10 flex gap-4 overflow-x-auto pb-4">
+          {MenuCategories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveTab(cat)}
+              className={`px-8 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 border border-ui-border ${activeTab === cat
+                ? "bg-brand-primary text-white"
+                : "bg-ui-white text-content-paragraph hover:bg-brand-light hover:text-brand-primary"
+                }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </section>
+
+
+        {/* Products Grid */}
+        <section className="max-w-7xl mx-auto px-6 md:px-10 mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {filteredProducts.map((item) => (
+            <div key={item.id} className="group relative bg-ui-card p-3 rounded-2xl border border-ui-border transition-all duration-300">
+              <div className="overflow-hidden rounded-2xl h-48 mb-4">
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+
+              </div>
+
+              <div className="px-2 pb-2 space-y-2">
+                <span className="text-[10px] uppercase tracking-widest text-brand-primary font-black">{item.category}</span>
+                <div className="flex justify-between">
+                  <h3 className="text-lg font-bold text-content-title line-clamp-1">{item.name}</h3>
+                  <span className="text-brand-primary font-bold text-sm">${item.price}</span>
+                </div>
+                <p className="text-xs text-content-subtitle line-clamp-2 leading-relaxed">
+                  {item.description}
+                </p>
+
+                <div className="flex justify-between items-center pt-4">
+                  <button className="flex items-center gap-1 text-[11px] font-bold text-content-paragraph hover:text-brand-hover transition">
+                    View Details <ArrowRight size={14} />
+                  </button>
+                  <button className="bg-brand-primary text-white p-2 rounded-xl hover:bg-brand-hover transition active:scale-95">
+                    <Plus size={20} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </section>
       </main>
-    </main>
+    </div>
   );
-};
+}
