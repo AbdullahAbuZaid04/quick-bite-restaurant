@@ -1,47 +1,61 @@
+import { OrdersCards, OrdersData, TheadTabels } from "../../data/mockData";
 import OrderRow from "../../components/admin/OrderRow";
 import OrdersCard from "../../components/admin/OrdersCard";
+import Pagination from "../../components/common/Pagination";
 
 export default function OrdersManagement() {
+
   return (
-    <>
-      <header>
-        <h1>Orders Management</h1>
-        <p>
+    <div>
+      <div className="mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold text-content-paragraph">
+          Orders Management
+        </h1>
+        <p className="text-content-subtitle text-sm mt-2">
           Monitor and process incoming customer requests. Manage delivery logistics
           and kitchen preparation status in real-time.
         </p>
-      </header>
+      </div>
 
-      <section>
-        <OrdersCard title="Total Orders" number={12000} rate={10} />
-        <OrdersCard title="Pending Orders" number={12000} rate={10} />
-        <OrdersCard title="Completed Orders" number={12000} rate={10} />
-        <OrdersCard title="Cancelled Orders" number={12000} rate={10} />
-      </section>
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+        {OrdersCards.map((card, index) => (
+          <OrdersCard
+            key={index}
+            icon={card.icon}
+            title={card.title}
+            value={card.value}
+            color={card.color}
+          />
+        ))}
+      </div>
 
-      <section>
-        <div>
-          <table>
-            <thead>
+      <div className="bg-ui-white rounded-2xl  border border-ui-border overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[900px]">
+            <thead className="bg-brand-primary text-white text-sm text-center font-bold uppercase">
               <tr>
-                <th>Order ID</th>
-                <th>Customer</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Change Status</th>
+                {TheadTabels.Orders.map((th, index) => (
+                  <th key={index} className="py-5 px-6">{th}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              <OrderRow OrderID={1} Customer="John Doe" Amount={12000} Status="Pending" Date="2022-01-01" />
-              <OrderRow OrderID={2} Customer="John Doe" Amount={12000} Status="Pending" Date="2022-01-01" />
-              <OrderRow OrderID={3} Customer="John Doe" Amount={12000} Status="Pending" Date="2022-01-01" />
-              <OrderRow OrderID={4} Customer="John Doe" Amount={12000} Status="Pending" Date="2022-01-01" />
-              <OrderRow OrderID={5} Customer="John Doe" Amount={12000} Status="Pending" Date="2022-01-01" />
+              {OrdersData.map((order, index) =>
+                <OrderRow
+                  key={index}
+                  OrderID={order.id}
+                  Customer={order.customer}
+                  Amount={order.amount}
+                  Status={order.status}
+                  Date={order.date}
+                />
+              )}
             </tbody>
           </table>
         </div>
-      </section>
-    </>
+
+        <Pagination currentPage={1} totalPages={6} totalItems={24} itemsPerPage={4} itemName="orders" />
+      </div>
+    </div>
   );
 }

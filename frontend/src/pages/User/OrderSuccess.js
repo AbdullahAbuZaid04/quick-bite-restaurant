@@ -47,7 +47,7 @@ export default function OrderSuccess() {
               <div key={item.id} className="flex items-center justify-between p-3 rounded-2xl">
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <img src={item.img} alt={item.name} className="w-12 h-12 rounded-xl object-cover shadow-sm" />
+                    <img src={item.img} alt={item.name} className="w-12 h-12 rounded-xl object-cover " />
                     <span className="absolute -top-2 -right-2 bg-brand-primary text-ui-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-ui-white">
                       {item.qty}
                     </span>

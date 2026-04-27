@@ -32,7 +32,7 @@ export default function OrderTracking() {
         </section>
 
         <section className="max-w-6xl mx-auto px-4 md:px-8 mt-10">
-          <div className="bg-ui-white rounded-2xl shadow-sm border border-ui-border overflow-hidden">
+          <div className="bg-ui-white rounded-2xl  border border-ui-border overflow-hidden">
 
             <div className="flex justify-between items-center px-8 py-8 border-b border-ui-mainBg">
               <h2 className="text-xl font-bold text-content-title">Recent Orders</h2>
