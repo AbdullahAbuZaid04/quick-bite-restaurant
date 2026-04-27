@@ -1,49 +1,51 @@
 import { Plus } from "lucide-react";
+import { MenuData, TheadTabels } from "../../data/mockData";
 import MenuRow from "../../components/admin/MenuRow";
-import AddProductModal from "../../components/admin/AddProductModal";
-import EditProductModal from "../../components/admin/EditProductModal";
-import DeleteProductModal from "../../components/admin/DeleteProductModal";
-import ImgManageMenu1 from "../../assets/ManageMenu1.png";
-import ImgManageMenu2 from "../../assets/ManageMenu2.png";
+import Pagination from "../../components/common/Pagination";
 
 export default function ManageMenu() {
+
   return (
-    <>
-      <header>
+    <div>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1>Manage Menu</h1>
-          <p>
+          <h1 className="text-3xl md:text-4xl font-bold text-content-paragraph">Manage Menu</h1>
+          <p className="text-content-subtitle text-sm mt-2 max-w-xl">
             Manage all restaurant products, categories, pricing, and availability.
           </p>
         </div>
-        <button type="button">
+        <button className="bg-brand-primary text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 hover:bg-brand-hover transition-all duration-200 text-sm">
           <Plus size={20} /> Add Product
         </button>
-      </header>
+      </div >
 
-      <section>
-        <div>
-          <table>
-            <thead>
+      <div className="bg-ui-white rounded-2xl  border border-ui-border overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[800px]">
+            <thead className="bg-brand-primary text-white text-center text-sm font-bold uppercase">
               <tr>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Prep Time</th>
-                <th>Actions</th>
+                {TheadTabels.Menu.map((th, index) => (
+                  <th key={index} className="py-5 px-6">{th}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              <MenuRow image={ImgManageMenu1} name="Classic Beef Burger" category="Main Course" price="$12.99" prepTime="20-25 min" />
-              <MenuRow image={ImgManageMenu2} name="Spicy Chicken Wings" category="Appetizer" price="$8.99" prepTime="15-20 min" />
+              {MenuData.map((item, index) => (
+                <MenuRow
+                  key={index}
+                  image={item.image}
+                  name={item.name}
+                  category={item.category}
+                  price={item.price}
+                  prepTime={item.prepTime}
+                />
+              ))}
             </tbody>
           </table>
         </div>
-        <AddProductModal />
-        <EditProductModal />
-        <DeleteProductModal />
-      </section>
-    </>
+
+        <Pagination currentPage={1} totalPages={6} totalItems={24} itemsPerPage={4} itemName="products" />
+      </div>
+    </div>
   );
 }

@@ -1,40 +1,48 @@
+import { TheadTabels, UserData } from "../../data/mockData";
 import UserRow from "../../components/admin/UserRow";
-import DeleteUserModal from "../../components/admin/DeleteUserModal";
+import Pagination from "../../components/common/Pagination";
 
 export default function UsersManagement() {
+
+
   return (
     <>
-      <header>
-        <h1>Users Management</h1>
-        <p>
+      <div className="mb-10">
+        <h1 className="text-3xl md:text-4xl font-bold text-content-paragraph">
+          Users Management
+        </h1>
+        <p className="text-content-subtitle text-sm mt-2">
           Manage platform access, monitor user activity, and maintain
           administrative control over the Quick Bite ecosystem.
         </p>
-      </header>
+      </div>
 
-      <section>
-        <div>
-          <table>
-            <thead>
+      <div className="bg-ui-white rounded-2xl  overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[700px]">
+            <thead className="bg-brand-primary text-white text-center text-sm font-bold uppercase">
               <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Actions</th>
+                {TheadTabels.Users.map((th, index) => (
+                  <th key={index} className="py-5 px-6">{th}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              <UserRow name="John Doe" email="[EMAIL_ADDRESS]" role="Admin" />
-              <UserRow name="John Doe" email="[EMAIL_ADDRESS]" role="User" />
-              <UserRow name="John Doe" email="[EMAIL_ADDRESS]" role="User" />
-              <UserRow name="John Doe" email="[EMAIL_ADDRESS]" role="User" />
-              <UserRow name="John Doe" email="[EMAIL_ADDRESS]" role="User" />
+              {UserData.map((user, index) => (
+                <UserRow
+                  key={index}
+                  avatar={user.avatar}
+                  name={user.name}
+                  email={user.email}
+                  role={user.role}
+                />
+              ))}
             </tbody>
           </table>
         </div>
-      </section>
 
-      <DeleteUserModal />
+        <Pagination currentPage={1} totalPages={6} totalItems={24} itemsPerPage={5} itemName="users" />
+      </div>
     </>
   );
 }

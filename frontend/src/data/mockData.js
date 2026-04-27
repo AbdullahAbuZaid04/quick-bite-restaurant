@@ -1,5 +1,4 @@
 import { ShoppingBag, LayoutDashboard, Users, UtensilsCrossed, ShoppingCart, Clock, CheckCircle2, TrendingUp } from "lucide-react";
-import img2 from "../assets/menu-1.png";
 
 import MenuImg1 from "../assets/menu-1.png";
 import MenuImg2 from "../assets/menu-2.png";
@@ -10,10 +9,10 @@ import MenuImg6 from "../assets/menu-6.png";
 
 
 export const statusStyles = {
-  Delivered: "bg-status-delivered text-content-title",
-  Preparing: "bg-status-preparing text-content-title",
-  Pending: "bg-status-pending text-content-title",
-  Cancelled: "bg-status-cancelled text-content-title",
+  Delivered: "bg-status-delivered/30 text-content-paragraph",
+  Preparing: "bg-status-preparing/30 text-content-paragraph",
+  Pending: "bg-status-shipping/30 text-content-paragraph",
+  Cancelled: "bg-status-cancelled/30 text-content-paragraph",
 };
 
 export const DashboardCards = [
@@ -115,7 +114,7 @@ export const MenuData = [
     description: "Juicy beef patty with truffle aioli and caramelized onions",
     price: 18.5,
     prepTime: 12,
-    image: img2
+    image: MenuImg1
   },
   {
     id: 2,
@@ -124,7 +123,7 @@ export const MenuData = [
     description: "Juicy beef patty with truffle aioli and caramelized onions",
     price: 22.0,
     prepTime: 20,
-    image: img2
+    image: MenuImg2
 
   },
   {
@@ -134,7 +133,7 @@ export const MenuData = [
     description: "Juicy beef patty with truffle aioli and caramelized onions",
     price: 14.0,
     prepTime: 15,
-    image: img2
+    image: MenuImg3
   },
   {
     id: 4,
@@ -143,7 +142,7 @@ export const MenuData = [
     description: "Juicy beef patty with truffle aioli and caramelized onions",
     price: 19.5,
     prepTime: 17,
-    image: img2
+    image: MenuImg4
   },
 ];
 
