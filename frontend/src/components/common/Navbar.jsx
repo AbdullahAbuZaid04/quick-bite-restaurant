@@ -1,37 +1,40 @@
 import { ShoppingCart, Utensils, Menu } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
+
+  const navigate = useNavigate();
 
   return (
     <header className="flex justify-between bg-ui-white items-center py-4 px-4 md:px-12 relative z-50">
       <div className="flex items-center gap-2">
         <Utensils className="text-brand-primary" size={26} strokeWidth={2.5} />
-        <button to="/" className="text-brand-primary text-xl md:text-2xl font-extrabold tracking-tight">
+        <Link to="/" className="text-brand-primary text-xl md:text-2xl font-extrabold tracking-tight">
           Quick Bite
-        </button>
+        </Link>
       </div>
 
       <nav className="hidden md:block">
         <ul className="flex gap-8">
           <li>
-            <button to="/" className="text-content-paragraph text-sm font-semibold hover:text-brand-hover transition-colors">
+            <Link to="/" className="text-content-paragraph text-sm font-semibold hover:text-brand-hover transition-colors">
               Home
-            </button>
+            </Link>
           </li>
           <li>
-            <button to="/menu" className="text-content-paragraph text-sm font-semibold hover:text-brand-hover transition-colors">
+            <Link to="/menu" className="text-content-paragraph text-sm font-semibold hover:text-brand-hover transition-colors">
               Menu
-            </button>
+            </Link>
           </li>
           <li>
-            <button to="/order-tracking" className="text-content-paragraph text-sm font-semibold hover:text-brand-hover transition-colors">
+            <Link to="/order-tracking" className="text-content-paragraph text-sm font-semibold hover:text-brand-hover transition-colors">
               Track Order
-            </button>
+            </Link>
           </li>
           <li>
-            <button to="/dashboard" className="text-content-paragraph text-sm font-semibold hover:text-brand-hover transition-colors">
+            <Link to="/dashboard" className="text-content-paragraph text-sm font-semibold hover:text-brand-hover transition-colors">
               Dashboard
-            </button>
+            </Link>
           </li>
         </ul>
       </nav>
@@ -42,6 +45,7 @@ export default function Navbar() {
         </button>
 
         <button
+          onClick={() => navigate("/login")}
           className="bg-brand-primary text-white text-sm font-semibold px-4 py-2 rounded-full hover:bg-brand-hover transition-colors"
         >
           Logout
