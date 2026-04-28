@@ -1,5 +1,6 @@
 import Navbar from "../../components/common/Navbar";
 import pizzaImg from "../../assets/home.png";
+import { Link } from "react-router-dom";
 
 export default function Home() {
   return (
@@ -18,12 +19,12 @@ export default function Home() {
           </p>
 
           <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-4">
-            <button className="w-full sm:w-auto bg-brand-primary text-white px-10 py-4 rounded-2xl font-bold hover:bg-brand-hover transition-all active:scale-95 cursor-pointer">
+            <Link to="/menu" className="w-full sm:w-auto bg-brand-primary text-white px-10 py-4 rounded-2xl font-bold hover:bg-brand-hover transition-all active:scale-95 cursor-pointer">
               Order Now
-            </button>
-            <button className="w-full sm:w-auto border-2 border-content-paragraph text-content-paragraph px-10 py-4 rounded-2xl font-bold hover:bg-content-paragraph hover:text-white transition-all active:scale-95 cursor-pointer">
+            </Link>
+            <Link to="/menu" className="w-full sm:w-auto border-2 border-content-paragraph text-content-paragraph px-10 py-4 rounded-2xl font-bold hover:bg-content-paragraph hover:text-white transition-all active:scale-95 cursor-pointer">
               Explore Menu
-            </button>
+            </Link>
           </div>
         </section>
 

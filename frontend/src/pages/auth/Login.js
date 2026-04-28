@@ -1,8 +1,12 @@
 import { ArrowRight, Mail, Lock, EyeOff } from "lucide-react";
 import Navbar from "../../components/common/Navbar";
 import img from "../../assets/auth.png";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
+
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-ui-mainBg">
       <Navbar />
@@ -62,6 +66,7 @@ export default function Login() {
 
               <button
                 type="submit"
+                onClick={() => navigate("/")}
                 className="w-full bg-brand-primary hover:bg-brand-hover text-ui-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all duration-300 mt-8 transform active:scale-[0.98] group"
               >
                 Sign In
@@ -71,9 +76,9 @@ export default function Login() {
 
             <p className="text-center text-sm text-content-subtitle mt-10">
               Don't have an account?
-              <button className="text-brand-primary font-bold hover:underline ml-1">
+              <Link to="/register" className="text-brand-primary font-bold hover:underline ml-1">
                 Sign up
-              </button>
+              </Link>
             </p>
           </div>
         </section>

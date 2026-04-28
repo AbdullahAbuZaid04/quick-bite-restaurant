@@ -1,25 +1,30 @@
 import { LayoutDashboard, UtensilsCrossed, ShoppingBag, Users } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
-function NavItem({ icon, label, active }) {
+function NavItem({ icon, label, link }) {
+  const location = useLocation();
+  const active = location.pathname.includes(link);
+
   return (
-    <button
+    <Link
+      to={`/${link}`}
       className={`flex items-center gap-3 w-44 text-sm font-medium rounded-xl p-4 transition-all duration-200 ${active
         ? "bg-brand-primary text-white"
         : "text-content-subtitle hover:bg-brand-light hover:text-brand-primary"
         }`}
     >
       {icon} <span className="font-bold text-sm">{label}</span>
-    </button>
+    </Link>
   );
 }
 
 export default function AdminLayout({ children }) {
 
   const navItems = [
-    { icon: <LayoutDashboard size={20} />, label: "Dashboard", active: true },
-    { icon: <UtensilsCrossed size={20} />, label: "Manage Menu", active: false },
-    { icon: <ShoppingBag size={20} />, label: "Orders", active: false },
-    { icon: <Users size={20} />, label: "Users", active: false },
+    { icon: <LayoutDashboard size={20} />, label: "Dashboard", link: "dashboard", active: true },
+    { icon: <UtensilsCrossed size={20} />, label: "Manage Menu", link: "manage-menu", active: false },
+    { icon: <ShoppingBag size={20} />, label: "Orders", link: "orders-management", active: false },
+    { icon: <Users size={20} />, label: "Users", link: "users-management", active: false },
   ];
 
   return (
@@ -39,6 +44,7 @@ export default function AdminLayout({ children }) {
               key={item.label}
               icon={item.icon}
               label={item.label}
+              link={item.link}
               active={item.active}
             />
           ))}

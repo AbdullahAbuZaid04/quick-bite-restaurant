@@ -35,56 +35,56 @@ export default function OrderTracking() {
           <div className="bg-ui-white rounded-2xl  border border-ui-border overflow-hidden">
 
             <div className="flex justify-between items-center px-8 py-8 border-b border-ui-mainBg">
-              <h2 className="text-xl font-bold text-content-title">Recent Orders</h2>
-              <button className="flex items-center gap-2 px-4 py-2 bg-ui-mainBg rounded-xl text-[11px] text-content-title font-bold border border-ui-border hover:bg-gray-100 transition-colors">
+              <h2 className="text-xl font-bold text-content-paragraph">Recent Orders</h2>
+              <button className="flex items-center gap-2 px-4 py-2 bg-ui-mainBg rounded-xl text-[11px] text-content-paragraph font-bold border border-ui-border hover:bg-gray-100 transition-colors">
                 <span>Filter: Last 30 Days</span>
                 <SlidersHorizontal size={14} />
               </button>
             </div>
 
-            <div className="overflow-x-auto px-2">
-              <table className="w-full text-center border-separate border-spacing-y-2">
-                <thead>
-                  <tr className="text-[10px] uppercase tracking-[0.2em] text-content-subtitle">
-                    <th className="px-6 py-4 font-bold">Order ID</th>
-                    <th className="px-6 py-4 font-bold">Date</th>
-                    <th className="px-6 py-4 font-bold">Items</th>
-                    <th className="px-6 py-4 font-bold">Total</th>
-                    <th className="px-6 py-4 font-bold">Status</th>
-                    <th className="px-6 py-4 font-bold">Arrival</th>
-                    <th className="px-6 py-4 font-bold text-center">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="text-sm">
-                  {OrderTrackingData.map((order, idx) => (
-                    <tr key={idx} className="hover:bg-ui-mainBg transition-all">
-                      <td className="px-6 py-5 font-black text-content-paragraph">{order.id}</td>
-                      <td className="px-6 py-5 text-content-subtitle">{order.date}</td>
-                      <td className="px-6 py-5 font-bold text-content-paragraph">
-                        <span className="bg-ui-mainBg px-2 py-1 rounded-md">{order.items} items</span>
-                      </td>
-                      <td className="px-6 py-5 font-black text-brand-primary">{order.total}</td>
-                      <td className="px-6 py-5">
-                        <span className={`px-4 py-1.5 mx-auto rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 w-fit border ${order.statusColor}`}>
-                          {order.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-5 font-bold text-content-paragraph">
-                        <div className="flex items-center justify-center gap-2">
-                          {order.estTime}
-                        </div>
-                      </td>
-                      <td className="px-6 py-5 text-center">
-                        <button className="relative mx-auto text-brand-primary font-bold group">
-                          {order.action}
-                          <span className="absolute bottom-0 left-0 w-0 h-[2px] group-hover:w-full bg-brand-primary rounded-xl transition-all duration-300"></span>
-                        </button>
-                      </td>
+            <section className='mx-10'>
+              <div className="overflow-x-auto rounded-2xl">
+                <table className="w-full text-center min-w-[900px]">
+                  <thead className="bg-brand-primary text-white text-center text-sm font-bold uppercase">
+                    <tr>
+                      <th className="py-5 px-6">Order ID</th>
+                      <th className="py-5 px-6">Date</th>
+                      <th className="py-5 px-6">Items</th>
+                      <th className="py-5 px-6">Total</th>
+                      <th className="py-5 px-6">Status</th>
+                      <th className="py-5 px-6">Arrival</th>
+                      <th className="py-5 px-6 text-center">Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="text-sm">
+                    {OrderTrackingData.map((order, idx) => (
+                      <tr key={idx} className="border-b border-ui-border text-center hover:bg-ui-mainBg transition-all">
+                        <td className="px-6 py-5 font-black text-content-paragraph">{order.id}</td>
+                        <td className="px-6 py-5 text-content-subtitle font-medium">{order.date}</td>
+                        <td className="px-6 py-5 font-bold text-content-paragraph">
+                          <span className="bg-ui-mainBg px-3 py-1.5 rounded-lg border border-ui-border">{order.items} items</span>
+                        </td>
+                        <td className="px-6 py-5 font-black text-brand-primary text-base">{order.total}</td>
+                        <td className="px-6 py-5">
+                          <span className={`px-4 py-1.5 mx-auto rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 w-fit border ${order.statusColor}`}>
+                            {order.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-5 font-bold text-content-paragraph">
+                          {order.estTime}
+                        </td>
+                        <td className="px-6 py-5 text-center">
+                          <button className="relative mx-auto text-brand-primary font-bold group">
+                            {order.action}
+                            <span className="absolute bottom-0 left-0 w-0 h-[2px] group-hover:w-full bg-brand-primary rounded-xl transition-all duration-300"></span>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
 
             <div className="p-8 text-center bg-gray-50/30 border-t border-ui-mainBg">
               <button className="text-xs font-bold text-content-subtitle hover:text-brand-primary transition-colors flex items-center gap-2 mx-auto">

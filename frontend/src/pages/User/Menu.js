@@ -17,7 +17,7 @@ export default function Menu() {
       <main>
         <section className="max-w-7xl mx-auto px-6 md:px-10 mt-8 md:mt-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div className="max-w-2xl">
-            <h1 className="text-4xl md:text-5xl font-extrabold text-content-title mb-3 tracking-tight">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-content-paragraph mb-3 tracking-tight">
               Our <span className="text-brand-primary">Menu</span>
             </h1>
             <p className="text-content-paragraph text-lg leading-relaxed">
