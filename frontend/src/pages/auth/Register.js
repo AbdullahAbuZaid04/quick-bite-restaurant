@@ -1,10 +1,21 @@
-import { ArrowRight, User, Mail, Lock, EyeOff } from "lucide-react";
+import { ArrowRight, User, Mail, Lock, EyeOff, Eye } from "lucide-react";
 import Navbar from "../../components/common/Navbar";
 import img from "../../assets/auth.png";
 import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "../../hooks/useForm";
 
 export default function Register() {
   const navigate = useNavigate();
+
+  const { formData, errors, showPassword, setShowPassword, handleChange, handleSubmit } = useForm({
+    fullName: "",
+    email: "",
+    password: ""
+  }, onSuccess, "register");
+
+  function onSuccess() {
+    navigate("/");
+  }
 
   return (
     <div className="min-h-screen bg-ui-mainBg">
@@ -23,7 +34,7 @@ export default function Register() {
               </p>
             </div>
 
-            <form className="space-y-5">
+            <form onSubmit={handleSubmit} noValidate className="space-y-5">
               <div className="space-y-2">
                 <label className="text-[11px] font-bold text-content-subtitle uppercase tracking-[0.2em] ml-1" htmlFor="full-name">
                   Full Name
@@ -31,13 +42,18 @@ export default function Register() {
                 <div className="relative group">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 text-content-subtitle group-focus-within:text-brand-primary transition-colors" size={18} />
                   <input
-                    className="w-full bg-ui-mainBg border border-ui-border rounded-2xl py-4 pl-12 pr-4 focus:border-brand-primary outline-none transition-all text-sm placeholder:text-gray-400"
+                    className={`w-full bg-ui-mainBg border ${errors.fullName ? "border-red-500" : "border-ui-border"} rounded-2xl py-4 pl-12 pr-4 focus:border-brand-primary outline-none transition-all text-sm placeholder:text-gray-400`}
                     type="text"
                     id="full-name"
+                    name="fullName"
+                    onChange={handleChange}
+                    value={formData.fullName}
                     placeholder="e.g. Ahmad Hassan"
-                    required
                   />
                 </div>
+                {errors.fullName && (
+                  <p className="text-right text-red-500 text-sm mt-2">{errors.fullName}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -47,13 +63,18 @@ export default function Register() {
                 <div className="relative group">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-content-subtitle group-focus-within:text-brand-primary transition-colors" size={18} />
                   <input
-                    className="w-full bg-ui-mainBg border border-ui-border rounded-2xl py-4 pl-12 pr-4 focus:border-brand-primary outline-none transition-all text-sm placeholder:text-gray-400"
+                    className={`w-full bg-ui-mainBg border ${errors.email ? "border-red-500" : "border-ui-border"} rounded-2xl py-4 pl-12 pr-4 focus:border-brand-primary outline-none transition-all text-sm placeholder:text-gray-400`}
                     type="email"
                     id="email"
+                    name="email"
+                    onChange={handleChange}
+                    value={formData.email}
                     placeholder="name@example.com"
-                    required
                   />
                 </div>
+                {errors.email && (
+                  <p className="text-right text-red-500 text-sm mt-2">{errors.email}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -63,21 +84,25 @@ export default function Register() {
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-content-subtitle group-focus-within:text-brand-primary transition-colors" size={18} />
                   <input
-                    className="w-full bg-ui-mainBg border border-ui-border rounded-2xl py-4 pl-12 pr-12 focus:border-brand-primary outline-none transition-all text-sm"
-                    type="password"
+                    className={`w-full bg-ui-mainBg border ${errors.password ? "border-red-500" : "border-ui-border"} rounded-2xl py-4 pl-12 pr-12 focus:border-brand-primary outline-none transition-all text-sm`}
+                    type={showPassword ? "text" : "password"}
                     id="password"
+                    name="password"
+                    onChange={handleChange}
+                    value={formData.password}
                     placeholder="••••••••"
-                    required
                   />
-                  <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-content-subtitle hover:text-brand-primary transition-colors">
-                    <EyeOff size={18} />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-content-subtitle hover:text-brand-primary transition-colors">
+                    {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                   </button>
                 </div>
+                {errors.password && (
+                  <p className="text-right text-red-500 text-sm mt-2">{errors.password}</p>
+                )}
               </div>
 
               <button
                 type="submit"
-                onClick={() => navigate("/login")}
                 className="w-full bg-brand-primary hover:bg-brand-hover text-ui-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all duration-300 mt-8 transform active:scale-[0.98] group"
               >
                 Create Account

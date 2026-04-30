@@ -1,17 +1,26 @@
-import { ArrowRight, Mail, Lock, EyeOff } from "lucide-react";
+import { ArrowRight, Mail, Lock, EyeOff, Eye } from "lucide-react";
 import Navbar from "../../components/common/Navbar";
 import img from "../../assets/auth.png";
 import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "../../hooks/useForm";
 
 export default function Login() {
-
   const navigate = useNavigate();
+
+  const { formData, errors, showPassword, setShowPassword, handleChange, handleSubmit } = useForm({
+    email: "",
+    password: ""
+  }, onSuccess, "login");
+
+  function onSuccess() {
+    navigate("/");
+  }
 
   return (
     <div className="min-h-screen bg-ui-mainBg">
       <Navbar />
 
-      <main className="flex flex-1 justify-center items-center overflow-hidden p-4">
+      <main className="flex justify-center items-center overflow-hidden p-4">
         <section className="flex bg-ui-white rounded-2xl overflow-hidden max-w-5xl w-full flex-col md:flex-row min-h-[600px]">
 
           <div className="hidden md:block w-1/2">
@@ -28,7 +37,7 @@ export default function Login() {
               </p>
             </div>
 
-            <form className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-content-subtitle uppercase tracking-[0.2em] ml-1" htmlFor="email">
                   Email Address
@@ -36,13 +45,18 @@ export default function Login() {
                 <div className="relative group">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-content-subtitle group-focus-within:text-brand-primary transition-colors" size={18} />
                   <input
-                    className="w-full bg-ui-mainBg border border-ui-border rounded-2xl py-4 pl-12 pr-4 focus:border-brand-primary outline-none transition-all placeholder:text-gray-400 text-sm"
+                    className={`w-full bg-ui-mainBg border ${errors.email ? "border-red-500" : "border-ui-border"} rounded-2xl py-4 pl-12 pr-4 focus:border-brand-primary outline-none transition-all placeholder:text-gray-400 text-sm`}
                     type="email"
                     id="email"
+                    name="email"
                     placeholder="name@example.com"
-                    required
+                    value={formData.email}
+                    onChange={handleChange}
                   />
                 </div>
+                {errors.email && (
+                  <p className="text-right text-red-500 text-sm mt-2">{errors.email}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -52,21 +66,25 @@ export default function Login() {
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-content-subtitle group-focus-within:text-brand-primary transition-colors" size={18} />
                   <input
-                    className="w-full bg-ui-mainBg border border-ui-border rounded-2xl py-4 pl-12 pr-12 focus:border-brand-primary outline-none transition-all text-sm"
-                    type="password"
+                    className={`w-full bg-ui-mainBg border ${errors.password ? "border-red-500" : "border-ui-border"} rounded-2xl py-4 pl-12 pr-12 focus:border-brand-primary outline-none transition-all text-sm`}
+                    type={showPassword ? "text" : "password"}
                     id="password"
+                    name="password"
                     placeholder="••••••••"
-                    required
+                    value={formData.password}
+                    onChange={handleChange}
                   />
-                  <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-content-subtitle hover:text-brand-primary transition-colors">
-                    <EyeOff size={18} />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-content-subtitle hover:text-brand-primary transition-colors">
+                    {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                   </button>
                 </div>
+                {errors.password && (
+                  <p className="text-right text-red-500 text-sm mt-2">{errors.password}</p>
+                )}
               </div>
 
               <button
                 type="submit"
-                onClick={() => navigate("/")}
                 className="w-full bg-brand-primary hover:bg-brand-hover text-ui-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all duration-300 mt-8 transform active:scale-[0.98] group"
               >
                 Sign In
