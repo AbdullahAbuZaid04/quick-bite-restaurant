@@ -1,6 +1,6 @@
 import { PencilLine, Trash2 } from "lucide-react";
 
-export default function MenuRow({ image, name, category, price, prepTime }) {
+export default function MenuRow({ image, name, category, price, prepTime, handleEdit, handleDelete }) {
   return (
     <tr className="border-b border-ui-border text-center hover:bg-ui-mainBg transition-colors">
       <td className="py-4 px-6">
@@ -25,10 +25,10 @@ export default function MenuRow({ image, name, category, price, prepTime }) {
 
       <td className="py-4 px-6">
         <div className="flex items-center justify-center gap-3 text-content-paragraph">
-          <button className="hover:text-blue-500 transition-colors">
+          <button onClick={handleEdit} className="hover:text-blue-500 transition-colors">
             <PencilLine size={18} />
           </button>
-          <button className="hover:text-status-cancelled transition-colors">
+          <button onClick={handleDelete} className="hover:text-status-cancelled transition-colors">
             <Trash2 size={18} />
           </button>
         </div>

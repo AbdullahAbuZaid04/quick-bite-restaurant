@@ -1,9 +1,11 @@
-import { TheadTabels, UserData } from "../../data/mockData";
+import { TheadTabels } from "../../data/mockData";
 import UserRow from "../../components/admin/UserRow";
 import Pagination from "../../components/common/Pagination";
+import { useAdmin } from "../../hooks/useAdmin";
+import DeleteUserModal from "../../components/admin/DeleteUserModal";
 
 export default function UsersManagement() {
-
+  const { isUserDeleteModalOpen, setIsUserDeleteModalOpen, selectedUser, users, handleDeleteUser, handleClickDeleteUser } = useAdmin();
 
   return (
     <>
@@ -28,13 +30,14 @@ export default function UsersManagement() {
               </tr>
             </thead>
             <tbody>
-              {UserData.map((user, index) => (
+              {users.map((user, index) => (
                 <UserRow
                   key={index}
                   avatar={user.avatar}
                   name={user.name}
                   email={user.email}
                   role={user.role}
+                  handleClickDelete={() => handleClickDeleteUser(user)}
                 />
               ))}
             </tbody>
@@ -43,6 +46,7 @@ export default function UsersManagement() {
 
         <Pagination currentPage={1} totalPages={6} totalItems={24} itemsPerPage={5} itemName="users" />
       </div>
+      <DeleteUserModal isOpen={isUserDeleteModalOpen} onClose={() => setIsUserDeleteModalOpen(false)} user={selectedUser} onDelete={handleDeleteUser} />
     </>
   );
 }
