@@ -2,8 +2,10 @@ import { Plus } from "lucide-react";
 import { DashboardCards, OrdersData, TheadTabels } from "../../data/mockData";
 import DashboardCard from "../../components/admin/DashboardCard"
 import DashboardRow from "../../components/admin/DashboardRow"
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
 
   return (
     <div>
@@ -25,7 +27,7 @@ export default function Dashboard() {
           <section className="flex-[2] overflow-x-auto">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl md:text-2xl font-bold text-content-paragraph">Recent Orders</h2>
-              <button className="text-brand-hover text-sm font-bold hover:text-brand-hover hover:underline transition-all">
+              <button onClick={() => navigate("/orders-management")} className="text-brand-hover text-sm font-bold hover:text-brand-hover hover:underline transition-all">
                 View All
               </button>
             </div>
@@ -56,7 +58,7 @@ export default function Dashboard() {
           <section className="flex-1">
             <h2 className="text-xl md:text-2xl font-bold text-content-paragraph mb-6">Quick Actions</h2>
             <div className="grid grid-cols-2 xl:grid-cols-1 gap-4">
-              <button className="w-full h-32 bg-brand-primary text-white rounded-2xl flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:bg-brand-hover">
+              <button onClick={() => navigate("/manage-menu")} className="w-full h-32 bg-brand-primary text-white rounded-2xl flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:bg-brand-hover">
                 <div className="bg-ui-white/20 p-3 rounded-2xl">
                   <Plus size={28} />
                 </div>

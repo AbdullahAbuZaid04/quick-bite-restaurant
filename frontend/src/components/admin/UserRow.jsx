@@ -1,6 +1,6 @@
 import { Trash2 } from "lucide-react";
 
-export default function UserRow({ name, email, role }) {
+export default function UserRow({ name, email, role, handleClickDelete }) {
   const roleStyles = role === "Admin" ? "bg-red-50 text-red-500" : "bg-blue-50 text-blue-400";
 
   return (
@@ -16,7 +16,7 @@ export default function UserRow({ name, email, role }) {
       </td>
       <td className="py-4 px-6 text-center">
         {
-          role !== "Admin" && <button className="text-content-subtitle hover:text-status-cancelled transition-colors duration-300">
+          role !== "Admin" && <button onClick={handleClickDelete} className="text-content-subtitle hover:text-status-cancelled transition-colors duration-300">
             <Trash2 size={18} />
           </button>
         }
