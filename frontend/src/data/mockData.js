@@ -7,7 +7,6 @@ import MenuImg4 from "../assets/menu-4.png";
 import MenuImg5 from "../assets/menu-5.png";
 import MenuImg6 from "../assets/menu-6.png";
 
-
 export const statusStyles = {
   Delivered: "bg-status-delivered/30 text-content-paragraph",
   Preparing: "bg-status-preparing/30 text-content-paragraph",
@@ -268,6 +267,8 @@ export const MenuProducts = [
     image: MenuImg1,
     description: "A classic burger with fresh ingredients and a delicious sauce.",
     category: "Burgers",
+    quantity: 100,
+    prepareTime: 15
   },
   {
     id: 2,
@@ -276,6 +277,8 @@ export const MenuProducts = [
     image: MenuImg2,
     description: "A classic burger with fresh ingredients and a delicious sauce.",
     category: "Burgers",
+    quantity: 100,
+    prepareTime: 15
   },
   {
     id: 3,
@@ -284,6 +287,8 @@ export const MenuProducts = [
     image: MenuImg3,
     description: "A classic burger with fresh ingredients and a delicious sauce.",
     category: "Burgers",
+    quantity: 100,
+    prepareTime: 15
   },
   {
     id: 4,
@@ -292,6 +297,8 @@ export const MenuProducts = [
     image: MenuImg4,
     description: "A classic burger with fresh ingredients and a delicious sauce.",
     category: "Burgers",
+    quantity: 100,
+    prepareTime: 15
   },
   {
     id: 5,
@@ -300,6 +307,8 @@ export const MenuProducts = [
     image: MenuImg5,
     description: "A classic burger with fresh ingredients and a delicious sauce.",
     category: "Burgers",
+    quantity: 100,
+    prepareTime: 15
   },
   {
     id: 6,
@@ -308,6 +317,8 @@ export const MenuProducts = [
     image: MenuImg6,
     description: "A classic burger with fresh ingredients and a delicious sauce.",
     category: "Burgers",
+    quantity: 100,
+    prepareTime: 15
   }
 ]
 

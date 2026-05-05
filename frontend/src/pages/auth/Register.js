@@ -3,9 +3,13 @@ import Navbar from "../../components/common/Navbar";
 import img from "../../assets/auth.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "../../hooks/useForm";
+import { useAuth } from "../../context/authContext";
+import { useCart } from "../../context/cartContext";
 
 export default function Register() {
   const navigate = useNavigate();
+  const { register } = useAuth();
+  const { cartItems } = useCart();
 
   const { formData, errors, showPassword, setShowPassword, handleChange, handleSubmit } = useForm({
     fullName: "",
@@ -13,9 +17,21 @@ export default function Register() {
     password: ""
   }, onSuccess, "register");
 
-  function onSuccess() {
-    navigate("/");
+  async function onSuccess() {
+    const result = await register(formData.fullName, formData.email, formData.password);
+    if (result.success) {
+      const registeredUser = result.user;
+      if (cartItems.length > 0) {
+        navigate("/checkout");
+      } else if (registeredUser.role === "admin") {
+        navigate("/dashboard");
+      } else {
+        navigate("/");
+      }
+    }
   }
+
+
 
   return (
     <div className="min-h-screen bg-ui-mainBg">

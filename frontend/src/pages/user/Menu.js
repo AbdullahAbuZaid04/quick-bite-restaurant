@@ -2,13 +2,16 @@ import { useState } from 'react';
 import { Search, Plus, ArrowRight } from 'lucide-react';
 import Navbar from '../../components/common/Navbar';
 import { MenuProducts, MenuCategories } from '../../data/mockData';
+import { useCart } from '../../context/cartContext';
 
 export default function Menu() {
+  const { addToCart } = useCart();
   const [activeTab, setActiveTab] = useState("All");
+  const [searchText, setSearchText] = useState("");
 
   const filteredProducts = activeTab === "All"
-    ? MenuProducts
-    : MenuProducts.filter(p => p.category === activeTab);
+    ? MenuProducts.filter(p => p.name.toLowerCase().includes(searchText.toLowerCase()))
+    : MenuProducts.filter(p => p.category === activeTab && p.name.toLowerCase().includes(searchText.toLowerCase()));
 
   return (
     <div className="min-h-screen bg-ui-mainBg pb-20">
@@ -28,6 +31,8 @@ export default function Menu() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-content-subtitle group-focus-within:text-brand-primary transition-colors" size={20} />
             <input
               type="text"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
               placeholder="Search your cravings..."
               className="w-full bg-ui-card py-4 pl-12 pr-4 rounded-2xl text-sm outline-none border border-ui-border focus:border-brand-primary transition-all"
             />
@@ -49,18 +54,16 @@ export default function Menu() {
           ))}
         </section>
 
-
         {/* Products Grid */}
         <section className="max-w-7xl mx-auto px-6 md:px-10 mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {filteredProducts.map((item) => (
-            <div key={item.id} className="group relative bg-ui-card p-3 rounded-2xl border border-ui-border transition-all duration-300">
-              <div className="overflow-hidden rounded-2xl h-48 mb-4">
+          {filteredProducts.length > 0 ? filteredProducts.map((item) => (
+            <div key={item.id} className="group relative bg-ui-white p-3 rounded-2xl border border-ui-border transition-all duration-300">
+              <div className="overflow-hidden rounded-2xl mb-4">
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  className="w-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-
               </div>
 
               <div className="px-2 pb-2 space-y-2">
@@ -77,13 +80,17 @@ export default function Menu() {
                   <button className="flex items-center gap-1 text-[11px] font-bold text-content-paragraph hover:text-brand-hover transition">
                     View Details <ArrowRight size={14} />
                   </button>
-                  <button className="bg-brand-primary text-white p-2 rounded-xl hover:bg-brand-hover transition active:scale-95">
+                  <button onClick={() => addToCart({ ...item, quantity: 1 })} className="bg-brand-primary text-white p-2 rounded-xl hover:bg-brand-hover transition active:scale-95">
                     <Plus size={20} />
                   </button>
                 </div>
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="col-span-full text-center py-12 bg-ui-white rounded-2xl border border-ui-border">
+              <p className="text-content-paragraph text-lg">No products found matching <span className="text-brand-primary font-bold">({searchText || activeTab})</span></p>
+            </div>
+          )}
         </section>
       </main>
     </div>

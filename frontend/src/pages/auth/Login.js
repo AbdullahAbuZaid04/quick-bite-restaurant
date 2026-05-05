@@ -3,18 +3,34 @@ import Navbar from "../../components/common/Navbar";
 import img from "../../assets/auth.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "../../hooks/useForm";
+import { useAuth } from "../../context/authContext";
+import { useCart } from "../../context/cartContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
+  const { cartItems } = useCart();
 
   const { formData, errors, showPassword, setShowPassword, handleChange, handleSubmit } = useForm({
     email: "",
     password: ""
   }, onSuccess, "login");
 
-  function onSuccess() {
-    navigate("/");
+  async function onSuccess() {
+    const result = await login(formData.email, formData.password);
+    if (result.success) {
+      const loggedInUser = result.user;
+      if (cartItems.length > 0) {
+        navigate("/checkout");
+      } else if (loggedInUser.role === "admin") {
+        navigate("/dashboard");
+      } else {
+        navigate("/");
+      }
+    }
   }
+
+
 
   return (
     <div className="min-h-screen bg-ui-mainBg">
