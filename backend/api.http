@@ -1,0 +1,223 @@
+### Quick Bite API — REST Client requests
+### How to use:
+###  1. Install "REST Client" extension in VS Code (humao.rest-client).
+###  2. Click "Send Request" above any block, or hit Ctrl/Cmd+Alt+R.
+###  3. Run the Login request first; @token below auto-updates from the response.
+
+@host = http://localhost:5000
+@base = {{host}}/api
+
+# Captured from /auth/login response (REST Client substitutes automatically).
+@token = {{login.response.body.data.token}}
+@adminToken = {{adminLogin.response.body.data.token}}
+
+###########################################
+# Health
+###########################################
+
+### Health
+GET {{base}}/health
+
+###########################################
+# Auth
+###########################################
+
+### Register a new customer
+POST {{base}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Alice Example",
+  "email": "alice@example.com",
+  "password": "Aa12345678!"
+}
+
+### Login (customer)  [name: login]
+# @name login
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "alice@example.com",
+  "password": "Aa12345678!"
+}
+
+### Login (default admin) [name: adminLogin]
+# @name adminLogin
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@quickbite.local",
+  "password": "Admin@12345"
+}
+
+### Get my profile
+GET {{base}}/auth/me
+Authorization: Bearer {{token}}
+
+### Update my profile
+PATCH {{base}}/auth/me
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Alice Updated"
+}
+
+###########################################
+# Categories
+###########################################
+
+### List categories
+GET {{base}}/categories
+
+### Create category (admin)
+POST {{base}}/categories
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "name": "Bakery" }
+
+### Update category (admin)
+PUT {{base}}/categories/1
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "name": "Burgers & Sandwiches" }
+
+### Delete category (admin)
+DELETE {{base}}/categories/7
+Authorization: Bearer {{adminToken}}
+
+###########################################
+# Menu items
+###########################################
+
+### List menu (public)
+GET {{base}}/menu?available=true&limit=20
+
+### Search menu
+GET {{base}}/menu?q=pizza
+
+### Get one
+GET {{base}}/menu/1
+
+### Create menu item (admin)
+POST {{base}}/menu
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Veggie Wrap",
+  "description": "Fresh veggies, hummus, in a whole-wheat wrap.",
+  "price": 5.50,
+  "category_id": 4,
+  "prepare_time": 8,
+  "image_url": null,
+  "is_available": true
+}
+
+### Toggle availability
+PATCH {{base}}/menu/1/availability
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "is_available": false }
+
+###########################################
+# Orders
+###########################################
+
+### Place an order (customer)
+POST {{base}}/orders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "items": [
+    { "menu_item_id": 1, "quantity": 2 },
+    { "menu_item_id": 7, "quantity": 1 }
+  ],
+  "delivery_address": "42 Omar Mukhtar St, Gaza",
+  "notes": "Extra napkins please."
+}
+
+### My orders
+GET {{base}}/orders
+Authorization: Bearer {{token}}
+
+### Single order
+GET {{base}}/orders/1
+Authorization: Bearer {{token}}
+
+### Update status (admin/manager/courier)
+PATCH {{base}}/orders/1/status
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "status": "confirmed" }
+
+### Cancel (customer)
+POST {{base}}/orders/1/cancel
+Authorization: Bearer {{token}}
+
+###########################################
+# Payments
+###########################################
+
+### Create payment
+POST {{base}}/payments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "order_id": 1,
+  "amount": 16.50,
+  "method": "cash"
+}
+
+### Mark payment paid (admin) - auto-confirms order, auto-issues invoice
+PATCH {{base}}/payments/1
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "status": "paid", "transaction_reference": "TXN-001" }
+
+### Payments for order
+GET {{base}}/orders/1/payments
+Authorization: Bearer {{token}}
+
+###########################################
+# Invoices
+###########################################
+
+### Invoice for order
+GET {{base}}/orders/1/invoice
+Authorization: Bearer {{token}}
+
+### All invoices (admin)
+GET {{base}}/invoices
+Authorization: Bearer {{adminToken}}
+
+###########################################
+# Users (admin)
+###########################################
+
+### List users
+GET {{base}}/users?role=customer&limit=50
+Authorization: Bearer {{adminToken}}
+
+### Promote user to manager
+PATCH {{base}}/users/2
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "role": "manager" }
+
+###########################################
+# Admin dashboard
+###########################################
+
+GET {{base}}/admin/dashboard
+Authorization: Bearer {{adminToken}}
