@@ -335,5 +335,5 @@ so subsequent menu-item price changes don't retroactively alter past orders.
 ---
 
 **Team — Quick Bite**
-Bahaa Eddin Al-Mallahi · Abdullah Mohammed AbuZaid · Abdullah Ali Al-Hindawi ·
+Abdullah Mohammed AbuZaid · Abdullah Ali Al-Hindawi ·
 Abdalkareem Rajab Abo Younis · Hazem Mohamed Oukal
