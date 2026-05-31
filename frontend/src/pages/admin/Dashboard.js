@@ -1,24 +1,76 @@
-import { Plus } from "lucide-react";
-import { DashboardCards, OrdersData, TheadTabels } from "../../data/mockData";
+import { useState, useEffect } from "react";
+import { ShoppingBag, LayoutDashboard, Users, UtensilsCrossed } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import DashboardCard from "../../components/admin/DashboardCard"
 import DashboardRow from "../../components/admin/DashboardRow"
-import { useNavigate } from "react-router-dom";
+import { getDashboardApi } from "../../api/dashboardService";
+import { formatOrderId, formatPrice } from "../../utils/formatters";
+import { STATUS_MAP } from "../../utils/statusColors";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      setIsLoading(true);
+      try {
+        const result = await getDashboardApi();
+        if (result.success) {
+          setData(result.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch dashboard:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchDashboard();
+  }, []);
+
+  const counters = data?.counters || {};
+  const revenue = data?.revenue || {};
+  const recentOrders = data?.recent_orders || [];
+
+  const dashboardCards = [
+    {
+      icon: <ShoppingBag size={20} />,
+      title: "Total Orders",
+      number: counters.total_orders || 0,
+      color: "orange",
+    },
+    {
+      icon: <LayoutDashboard size={20} />,
+      title: "Total Revenue",
+      number: Math.round(revenue.total || 0),
+      color: "purple",
+    },
+    {
+      icon: <Users size={20} />,
+      title: "Total Users",
+      number: counters.total_users || 0,
+      color: "blue",
+    },
+    {
+      icon: <UtensilsCrossed size={20} />,
+      title: "Active Products",
+      number: counters.total_available_items || 0,
+      color: "gray",
+    },
+  ];
 
   return (
     <div>
       <main>
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
-          {DashboardCards.map((Card, index) => (
+          {dashboardCards.map((card, index) => (
             <DashboardCard
               key={index}
-              icon={Card.icon}
-              title={Card.title}
-              number={Card.number}
-              rate={Card.rate}
-              color={Card.color}
+              icon={card.icon}
+              title={card.title}
+              number={card.number}
+              color={card.color}
             />
           ))}
         </section>
@@ -31,24 +83,43 @@ export default function Dashboard() {
                 View All
               </button>
             </div>
-            <div className="bg-ui-white rounded-2xl  border border-ui-border overflow-hidden min-w-[600px] md:min-w-full">
+            <div className="bg-ui-white rounded-2xl border border-ui-border overflow-hidden min-w-[600px] md:min-w-full">
               <table className="w-full text-center">
                 <thead className="bg-brand-primary text-white text-sm font-bold uppercase">
                   <tr>
-                    {TheadTabels.DashboardOrders.map((th, index) => (
-                      <th key={index} className="py-5 px-4">{th}</th>
-                    ))}
+                    <th className="py-5 px-4">Order ID</th>
+                    <th className="py-5 px-4">Customer</th>
+                    <th className="py-5 px-4">Amount</th>
+                    <th className="py-5 px-4">Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {OrdersData.map((order, index) =>
-                    <DashboardRow
-                      key={index}
-                      OrderID={order.id}
-                      Customer={order.customer}
-                      Amount={order.amount}
-                      Status={order.status}
-                    />
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={4} className="py-16">
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="w-8 h-8 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
+                          <span className="text-gray-400 text-sm font-medium">Loading recent orders...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : recentOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="py-16 text-gray-400 text-sm font-medium">
+                        No orders yet
+                      </td>
+                    </tr>
+                  ) : (
+                    recentOrders.map((order) => (
+                      <DashboardRow
+                        key={order.id}
+                        OrderID={formatOrderId(order.id)}
+                        Customer={order.user_name}
+                        Amount={formatPrice(order.total_amount)}
+                        Status={STATUS_MAP[order.status] || order.status}
+                        statusKey={order.status}
+                      />
+                    ))
                   )}
                 </tbody>
               </table>
@@ -60,7 +131,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-2 xl:grid-cols-1 gap-4">
               <button onClick={() => navigate("/manage-menu")} className="w-full h-32 bg-brand-primary text-white rounded-2xl flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:bg-brand-hover">
                 <div className="bg-ui-white/20 p-3 rounded-2xl">
-                  <Plus size={28} />
+                  <ShoppingBag size={28} />
                 </div>
                 <span className="font-bold text-sm md:text-base">
                   New Product

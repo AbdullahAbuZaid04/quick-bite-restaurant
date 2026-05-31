@@ -1,0 +1,64 @@
+import { useState, useEffect } from "react";
+import { getAllUsersApi, deleteUserApi } from "../api/userService";
+import toast from 'react-hot-toast';
+
+export function useUsers() {
+  const [isUserDeleteModalOpen, setIsUserDeleteModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+
+  const fetchUsers = async (page = 1) => {
+    setIsLoadingUsers(true);
+    try {
+      const result = await getAllUsersApi(page);
+      if (result.success) {
+        const data = result.data || [];
+        data.meta = result.meta || {};
+        setUsers(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleClickDeleteUser = (user) => {
+    setSelectedUser(user);
+    setIsUserDeleteModalOpen(true);
+  };
+
+  const handleDeleteUser = async (id) => {
+    try {
+      const result = await deleteUserApi(id);
+      if (result.success !== false) {
+        toast.success("User deleted successfully");
+        setUsers(prevUsers => prevUsers.filter(u => u.id !== id));
+      } else {
+        toast.error(result.message || 'Failed to delete user');
+      }
+    } catch (error) {
+      console.error('Failed to delete user:', error);
+      toast.error(error.message || 'Failed to delete user');
+    } finally {
+      setIsUserDeleteModalOpen(false);
+      setSelectedUser(null);
+    }
+  };
+
+  return {
+    isUserDeleteModalOpen,
+    setIsUserDeleteModalOpen,
+    selectedUser,
+    users,
+    isLoadingUsers,
+    handleClickDeleteUser,
+    handleDeleteUser,
+    refetchUsers: fetchUsers
+  };
+}

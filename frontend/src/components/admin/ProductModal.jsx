@@ -1,44 +1,68 @@
 import { useState, useEffect } from "react";
 import { X, ChevronDown } from "lucide-react";
-import ImageUpload from "./ImageUpload";
 
-export default function AddProductModal({ isOpen, onClose, onAdd }) {
+export default function ProductModal({
+  isOpen,
+  onClose,
+  type = "add", // "add" or "edit"
+  product,      // used if type is "edit"
+  onSubmit,     // single onSubmit handler that receives (data) for add, or (id, data) for edit
+  categories = [],
+  isLoadingCategories
+}) {
   const [formData, setFormData] = useState({
     name: "",
-    category: "",
+    category_id: 0,
     description: "",
-    price: "",
-    prepTime: "",
+    price: 0,
+    prepare_time: 0,
+    image_url: ""
   });
 
-  const [image, setImage] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    return () => {
-      if (image) {
-        URL.revokeObjectURL(image);
+    if (isOpen) {
+      if (type === "edit" && product) {
+        setFormData({
+          name: product.name || "",
+          category_id: product.category_id || 0,
+          description: product.description || "",
+          price: product.price || 0,
+          prepare_time: product.prepare_time || 0,
+          image_url: product.image_url || ""
+        });
+      } else {
+        // Reset to default for add
+        setFormData({
+          name: "",
+          category_id: 0,
+          description: "",
+          price: 0,
+          prepare_time: 0,
+          image_url: ""
+        });
       }
-    };
-  }, [image]);
+    }
+  }, [isOpen, type, product]);
 
   if (!isOpen) return null;
 
-  const handelSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const newProduct = { ...formData };
-    if (image) {
-      newProduct.image = URL.createObjectURL(image);
+    setIsSubmitting(true);
+    try {
+      if (type === "edit") {
+        await onSubmit(product.id, formData);
+      } else {
+        await onSubmit(formData);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
-    onAdd(newProduct);
-    setFormData({
-      name: "",
-      category: "",
-      description: "",
-      price: "",
-      prepTime: "",
-    });
-    setImage(null);
   };
+
+  const isEdit = type === "edit";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 overflow-y-auto bg-black/40 backdrop-blur-sm">
@@ -47,9 +71,9 @@ export default function AddProductModal({ isOpen, onClose, onAdd }) {
       <div className="relative bg-white w-full max-w-2xl rounded-2xl p-5 shadow-2xl my-auto">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h2 className="text-2xl font-bold">Add New Product</h2>
+            <h2 className="text-2xl font-bold">{isEdit ? "Edit Product" : "Add New Product"}</h2>
             <p className="text-gray-400 text-sm mt-1">
-              Fill in the information below to add a new dish.
+              {isEdit ? "Fill in the information below to edit the dish." : "Fill in the information below to add a new dish."}
             </p>
           </div>
           <button
@@ -60,7 +84,7 @@ export default function AddProductModal({ isOpen, onClose, onAdd }) {
           </button>
         </div>
 
-        <form onSubmit={handelSubmit}>
+        <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-gray-400 uppercase ml-1">
@@ -85,15 +109,21 @@ export default function AddProductModal({ isOpen, onClose, onAdd }) {
               <div className="relative">
                 <select
                   required
-                  value={formData.category}
+                  value={formData.category_id}
+                  disabled={isLoadingCategories}
                   onChange={(e) =>
-                    setFormData({ ...formData, category: e.target.value })
+                    setFormData({ ...formData, category_id: Number(e.target.value) })
                   }
-                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3.5 px-4 outline-none appearance-none focus:border-orange-500 transition-all duration-300 text-gray-500 cursor-pointer"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3.5 px-4 outline-none appearance-none focus:border-orange-500 transition-all duration-300 text-gray-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <option value="">Select category</option>
-                  <option value="burgers">Burgers</option>
-                  <option value="pizza">Pizza</option>
+                  <option value={0} disabled>
+                    {isLoadingCategories ? 'Loading categories...' : 'Select category'}
+                  </option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
                 </select>
                 <ChevronDown
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
@@ -125,7 +155,7 @@ export default function AddProductModal({ isOpen, onClose, onAdd }) {
               <input
                 type="number"
                 step="0.5"
-                value={formData.price}
+                value={formData.price || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, price: Number(e.target.value) })
                 }
@@ -139,26 +169,36 @@ export default function AddProductModal({ isOpen, onClose, onAdd }) {
               <label className="text-xs font-bold text-gray-400 uppercase ml-1">
                 Prep Time (min)
               </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  step="1"
-                  value={formData.prepTime}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      prepTime: Number(e.target.value),
-                    })
-                  }
-                  placeholder="0"
-                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3.5 px-4 outline-none focus:border-orange-500 transition-all duration-300 placeholder:text-gray-300"
-                  required
-                />
-              </div>
+              <input
+                type="number"
+                step="1"
+                value={formData.prepare_time || ""}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    prepare_time: Number(e.target.value),
+                  })
+                }
+                placeholder="0"
+                className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3.5 px-4 outline-none focus:border-orange-500 transition-all duration-300 placeholder:text-gray-300"
+                required
+              />
             </div>
 
-            <div className="md:col-span-2">
-              <ImageUpload image={image} setImage={setImage} />
+            <div className="md:col-span-2 space-y-1.5">
+              <label className="text-xs font-bold text-gray-400 uppercase ml-1">
+                Product Image URL
+              </label>
+              <input
+                type="text"
+                value={formData.image_url}
+                onChange={(e) =>
+                  setFormData({ ...formData, image_url: e.target.value })
+                }
+                placeholder="https://example.com/image.jpg"
+                className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3.5 px-4 outline-none focus:border-orange-500 transition-all duration-300 placeholder:text-gray-300"
+                required
+              />
             </div>
           </div>
 
@@ -172,9 +212,13 @@ export default function AddProductModal({ isOpen, onClose, onAdd }) {
             </button>
             <button
               type="submit"
-              className="px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-2xl shadow-lg shadow-orange-100 transition-all duration-300"
+              disabled={isSubmitting}
+              className="px-8 py-3 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 disabled:cursor-not-allowed text-white font-bold rounded-2xl shadow-lg shadow-orange-100 transition-all duration-300 flex items-center gap-2"
             >
-              Save Product
+              {isSubmitting && (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              )}
+              {isSubmitting ? (isEdit ? 'Updating...' : 'Saving...') : (isEdit ? 'Update Product' : 'Save Product')}
             </button>
           </div>
         </form>

@@ -1,13 +1,18 @@
 import { Check, Home, ArrowRight } from 'lucide-react';
 import Navbar from '../../components/common/Navbar';
-import { useNavigate, Navigate } from 'react-router-dom';
+import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { useCart } from '../../context/cartContext';
+import { formatOrderId, formatPrice } from '../../utils/formatters';
 
 export default function OrderSuccess() {
   const navigate = useNavigate();
-  const { cartTotalTime, clearCart, cartItems, cartTotal } = useCart()
+  const location = useLocation();
+  const { cartTotalTime, clearCart, cartItems, cartTotal } = useCart();
 
-  if (!cartItems) {
+  const orderId = location.state?.orderId;
+
+  // Guard: must arrive via navigation with a valid orderId
+  if (!orderId) {
     return <Navigate to="/" replace />;
   }
 
@@ -30,7 +35,7 @@ export default function OrderSuccess() {
           Order Placed!
         </h1>
         <p className="text-content-subtitle text-sm">
-          Your food is being prepared with love. Order <span className="text-brand-primary font-bold">#QB-{Math.floor(Math.random() * 10000)}</span> is on the way.
+          Your food is being prepared with love. Order <span className="text-brand-primary font-bold">{formatOrderId(orderId)}</span> is on the way.
         </p>
 
         {/* Info Card */}
@@ -40,7 +45,7 @@ export default function OrderSuccess() {
           <div className="flex justify-between px-8 py-8 border-b border-ui-mainBg bg-gray-50/50">
             <div className="text-left">
               <span className="text-[10px] font-bold text-content-paragraph uppercase tracking-[0.2em] block mb-1">Total Paid</span>
-              <span className="text-2xl font-black text-brand-primary">${cartTotal?.toFixed(2)}</span>
+              <span className="text-2xl font-black text-brand-primary">{formatPrice(cartTotal)}</span>
             </div>
             <div className="text-right">
               <span className="text-[10px] font-bold text-content-paragraph uppercase tracking-[0.2em] block mb-1">Est. Arrival</span>
@@ -55,14 +60,14 @@ export default function OrderSuccess() {
               <div key={item.id} className="flex items-center justify-between p-3 rounded-2xl">
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <img src={item.image} alt={item.name} className="w-12 h-12 rounded-xl object-cover " />
+                    <img src={item.image_url} alt={item.name} className="w-12 h-12 rounded-xl object-cover " loading="lazy" />
                     <span className="absolute -top-2 -right-2 bg-brand-primary text-ui-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-ui-white">
                       {item.quantity}
                     </span>
                   </div>
                   <div className="text-left">
                     <h4 className="text-sm font-bold text-content-title">{item.name}</h4>
-                    <span className="text-xs text-content-subtitle">Extra spicy • No onions</span>
+                    <span className="text-xs text-content-subtitle">x{item.quantity}</span>
                   </div>
                 </div>
                 <span className="text-xs uppercase font-black text-status-delivered bg-status-delivered/10 px-3 py-1.5 rounded-lg border border-status-delivered/20">
@@ -89,4 +94,3 @@ export default function OrderSuccess() {
     </div>
   );
 }
-

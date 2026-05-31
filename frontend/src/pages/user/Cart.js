@@ -2,6 +2,7 @@ import { Trash2, ArrowRight, Minus, Plus, Clock, ChevronLeft } from 'lucide-reac
 import Navbar from '../../components/common/Navbar';
 import { useCart } from '../../context/cartContext';
 import { useNavigate } from 'react-router-dom';
+import { formatPrice } from '../../utils/formatters';
 
 export default function Cart() {
   const { cartItems, clearItemFromCart, cartTotal, addToCart, removeFromCart, cartTotalTime } = useCart();
@@ -37,7 +38,7 @@ export default function Cart() {
                 <div key={item.id} className="group relative flex items-center gap-4 p-4 rounded-2xl bg-ui-white border border-ui-border hover:border-brand-primary/50 transition-all">
 
                   <div className="relative overflow-hidden rounded-2xl w-24 h-24">
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+                    <img src={item.image_url} alt={item.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
                   </div>
 
                   <div className="flex-1">
@@ -53,17 +54,17 @@ export default function Cart() {
 
                     <div className="flex justify-between items-center mt-auto">
                       <div className="flex items-center gap-3 bg-ui-mainBg border border-ui-border rounded-xl p-1">
-                        <button onClick={() => removeFromCart({ ...item, quantity: item.quantity - 1 })} className="w-7 h-7 flex items-center justify-center bg-ui-white rounded-lg border border-ui-border text-content-paragraph hover:bg-brand-primary hover:text-ui-white transition-all cursor-pointer duration-300">
+                        <button onClick={() => removeFromCart(item)} className="w-7 h-7 flex items-center justify-center bg-ui-white rounded-lg border border-ui-border text-content-paragraph hover:bg-brand-primary hover:text-ui-white transition-all cursor-pointer duration-300">
                           {item.quantity === 1 ? <Trash2 size={14} /> : <Minus size={14} />}
                         </button>
                         <span className="text-sm font-bold w-6 text-center text-content-paragraph">{item.quantity}</span>
-                        <button onClick={() => addToCart({ ...item, quantity: item.quantity + 1 })} className="w-7 h-7 flex items-center justify-center bg-ui-white rounded-lg border border-ui-border text-content-paragraph hover:bg-brand-primary hover:text-ui-white transition-all cursor-pointer duration-300">
+                        <button onClick={() => addToCart(item)} className="w-7 h-7 flex items-center justify-center bg-ui-white rounded-lg border border-ui-border text-content-paragraph hover:bg-brand-primary hover:text-ui-white transition-all cursor-pointer duration-300">
                           <Plus size={14} />
                         </button>
                       </div>
 
                       <span className="text-brand-primary font-bold text-lg">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        {formatPrice(item.price * item.quantity)}
                       </span>
 
                     </div>
@@ -81,7 +82,7 @@ export default function Cart() {
                 <div className="pt-4 border-t border-ui-mainBg flex justify-between items-end">
                   <div>
                     <p className="text-xs font-bold text-brand-primary uppercase tracking-[0.2em] mb-1">Total to pay</p>
-                    <p className="text-4xl font-black text-content-paragraph">${(cartTotal).toFixed(2)}</p>
+                    <p className="text-4xl font-black text-content-paragraph">{formatPrice(cartTotal)}</p>
                   </div>
                 </div>
               </div>

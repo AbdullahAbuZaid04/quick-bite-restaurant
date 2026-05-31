@@ -1,4 +1,6 @@
-export default function OrdersCard({ icon, title, value, color }) {
+import { memo } from "react";
+
+const OrdersCard = memo(function OrdersCard({ icon, title, value, color }) {
   return (
     <div className="bg-ui-white p-6 rounded-2xl border border-ui-border flex items-center gap-5">
       <div className={`p-4 rounded-2xl ${color}`}>{icon}</div>
@@ -10,4 +12,6 @@ export default function OrdersCard({ icon, title, value, color }) {
       </div>
     </div>
   );
-}
+});
+
+export default OrdersCard;

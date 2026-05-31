@@ -1,4 +1,4 @@
-import { LayoutDashboard, UtensilsCrossed, ShoppingBag, Users, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, ShoppingBag, Users, LogOut, Menu, X, Tags } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/authContext";
 import { useState } from "react";
@@ -34,7 +34,8 @@ export default function AdminLayout({ children }) {
 
   const navItems = [
     { icon: <LayoutDashboard size={20} />, label: "Dashboard", link: "dashboard" },
-    { icon: <UtensilsCrossed size={20} />, label: "Manage Menu", link: "manage-menu" },
+    { icon: <UtensilsCrossed size={20} />, label: "Menu", link: "manage-menu" },
+    { icon: <Tags size={20} />, label: "Categories", link: "categories-management" },
     { icon: <ShoppingBag size={20} />, label: "Orders", link: "orders-management" },
     { icon: <Users size={20} />, label: "Users", link: "users-management" },
   ];

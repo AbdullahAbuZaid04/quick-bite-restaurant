@@ -1,11 +1,22 @@
-import { TheadTabels } from "../../data/mockData";
+import { useState } from "react";
 import UserRow from "../../components/admin/UserRow";
 import Pagination from "../../components/common/Pagination";
-import { useAdmin } from "../../hooks/useAdmin";
-import DeleteUserModal from "../../components/admin/DeleteUserModal";
+import { useUsers } from "../../hooks/useUsers";
+import DeleteModal from "../../components/admin/DeleteModal";
+
+const TABLE_HEADERS = ["User Name", "Email Address", "Role", "Actions"];
 
 export default function UsersManagement() {
-  const { isUserDeleteModalOpen, setIsUserDeleteModalOpen, selectedUser, users, handleDeleteUser, handleClickDeleteUser } = useAdmin();
+  const [currentPage, setCurrentPage] = useState(1);
+  const { isUserDeleteModalOpen, setIsUserDeleteModalOpen, selectedUser, users, handleDeleteUser, handleClickDeleteUser, isLoadingUsers, refetchUsers } = useUsers();
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    refetchUsers(page);
+  };
+
+  const meta = users?.meta || {};
+  const totalPages = meta.total ? Math.ceil(meta.total / (meta.limit || 10)) : 1;
 
   return (
     <>
@@ -19,34 +30,60 @@ export default function UsersManagement() {
         </p>
       </div>
 
-      <div className="bg-ui-white rounded-2xl  overflow-hidden">
+      <div className="bg-ui-white rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left min-w-[700px]">
             <thead className="bg-brand-primary text-white text-center text-sm font-bold uppercase">
               <tr>
-                {TheadTabels.Users.map((th, index) => (
+                {TABLE_HEADERS.map((th, index) => (
                   <th key={index} className="py-5 px-6">{th}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {users.map((user, index) => (
-                <UserRow
-                  key={index}
-                  avatar={user.avatar}
-                  name={user.name}
-                  email={user.email}
-                  role={user.role}
-                  handleClickDelete={() => handleClickDeleteUser(user)}
-                />
-              ))}
+              {isLoadingUsers ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-16">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-8 h-8 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-gray-400 text-sm font-medium">Loading users...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : users.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-16 text-gray-400 text-sm font-medium">
+                    No users found
+                  </td>
+                </tr>
+              ) : (
+                users.map((user, index) => (
+                  <UserRow
+                    key={user.id || index}
+                    avatar={user.avatar}
+                    name={user.name}
+                    email={user.email}
+                    role={user.role}
+                    handleClickDelete={() => handleClickDeleteUser(user)}
+                  />
+                ))
+              )}
             </tbody>
           </table>
         </div>
 
-        <Pagination currentPage={1} totalPages={6} totalItems={24} itemsPerPage={5} itemName="users" />
+        {users.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={meta.total || users.length}
+            itemsPerPage={meta.limit || users.length}
+            itemName="users"
+            onPageChange={handlePageChange}
+          />
+        )}
       </div>
-      <DeleteUserModal isOpen={isUserDeleteModalOpen} onClose={() => setIsUserDeleteModalOpen(false)} user={selectedUser} onDelete={handleDeleteUser} />
+      <DeleteModal isOpen={isUserDeleteModalOpen} onClose={() => setIsUserDeleteModalOpen(false)} itemSelected={selectedUser} onDelete={handleDeleteUser} type="user" />
     </>
   );
 }
