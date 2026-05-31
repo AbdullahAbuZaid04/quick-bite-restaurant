@@ -1,36 +1,45 @@
 import { useState } from "react";
 import { authValidation } from "../utils/authValidations";
 
-export const useForm = (initialValues, onSuccess, type) => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState(initialValues)
+export function useForm(initialState, onSuccess, type) {
+  const [formData, setFormData] = useState(initialState);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }))
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: null }))
-    }
-  }
+    setFormData({ ...formData, [name]: value });
+    if (errors[name]) setErrors({ ...errors, [name]: "" });
+  };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const { newErrors, isFormValid } = authValidation(formData, type);
+
     if (isFormValid) {
-      onSuccess();
+      setLoading(true);
+      try {
+        await onSuccess();
+      } catch (serverError) {
+        setErrors({ server: serverError.message });
+      } finally {
+        setLoading(false);
+      }
     } else {
       setErrors(newErrors);
     }
-  }
+  };
 
   return {
     formData,
     errors,
     setErrors,
+    loading,
+    setLoading,
     showPassword,
     setShowPassword,
     handleChange,
     handleSubmit,
-  }
+  };
 }

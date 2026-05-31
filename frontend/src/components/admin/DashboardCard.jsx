@@ -1,4 +1,6 @@
-export default function Card({ icon, title, number, rate, color }) {
+import { memo } from "react";
+
+const Card = memo(function Card({ icon, title, number, rate, color }) {
   const colors = {
     orange: "bg-brand-light text-brand-primary",
     purple: "bg-purple-50 text-purple-500",
@@ -24,4 +26,6 @@ export default function Card({ icon, title, number, rate, color }) {
       </h3>
     </div>
   );
-}
+});
+
+export default Card;

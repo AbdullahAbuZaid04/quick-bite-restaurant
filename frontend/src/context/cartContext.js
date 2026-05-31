@@ -3,10 +3,9 @@ import { createContext, useContext, useState, useEffect, useMemo, useCallback } 
 const cartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState(() => JSON.parse(localStorage.getItem("cart")) || []);
-
+  const [cartItems, setCartItems] = useState(() => JSON.parse(sessionStorage.getItem("cart")) || []);
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cartItems));
+    sessionStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
   const addToCart = useCallback((item) => {
@@ -42,7 +41,7 @@ export const CartProvider = ({ children }) => {
     , [cartItems]);
 
   const cartTotalTime = useMemo(() =>
-    cartItems.reduce((acc, item) => acc + (item.prepareTime * item.quantity), 0)
+    cartItems.reduce((acc, item) => acc + (item.prepare_time * item.quantity), 0)
     , [cartItems]);
 
   const value = useMemo(() => ({

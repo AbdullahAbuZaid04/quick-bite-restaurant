@@ -11,7 +11,7 @@ export default function Login() {
   const { login } = useAuth();
   const { cartItems } = useCart();
 
-  const { formData, errors, showPassword, setShowPassword, handleChange, handleSubmit } = useForm({
+  const { formData, errors, setErrors, showPassword, setShowPassword, handleChange, handleSubmit, loading } = useForm({
     email: "",
     password: ""
   }, onSuccess, "login");
@@ -27,6 +27,8 @@ export default function Login() {
       } else {
         navigate("/");
       }
+    } else {
+      setErrors({ email: result.error || "Invalid email or password" });
     }
   }
 
@@ -101,10 +103,14 @@ export default function Login() {
 
               <button
                 type="submit"
-                className="w-full bg-brand-primary hover:bg-brand-hover text-ui-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all duration-300 mt-8 transform active:scale-[0.98] group"
+                disabled={loading}
+                className="w-full bg-brand-primary hover:bg-brand-hover disabled:bg-orange-300 disabled:cursor-not-allowed text-ui-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all duration-300 mt-8 transform active:scale-[0.98] group"
               >
-                Sign In
-                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                {loading && (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                )}
+                {loading ? 'Signing in...' : 'Sign In'}
+                {!loading && <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />}
               </button>
             </form>
 

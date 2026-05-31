@@ -100,23 +100,6 @@ export default function Navbar() {
         <button onClick={toggleMenu} className="text-gray-600">
           <Menu size={26} />
         </button>
-        <div className="md:hidden flex gap-4">
-          {isLoggedIn ? (
-            <button
-              onClick={handleLogout}
-              className="bg-brand-primary text-white text-sm font-semibold px-2 py-2 rounded-full hover:bg-brand-hover transition-colors"
-            >
-              <LogOut />
-            </button>
-          ) : (
-            <button
-              onClick={() => navigate("/login")}
-              className="bg-brand-primary text-white text-sm font-semibold px-2 py-2 rounded-full hover:bg-brand-hover transition-colors"
-            >
-              <LogIn />
-            </button>
-          )}
-        </div>
         <div className={isMenuOpen ? "absolute top-20 left-0 w-full bg-white shadow-lg p-6 transition-all duration-300 ease-in-out transform origin-top scale-y-100" : "absolute top-20 left-0 w-full bg-white shadow-lg p-6 transition-all duration-300 ease-in-out transform origin-top scale-y-0"}>
           <ul className="flex flex-col gap-4">
             <li>
@@ -133,6 +116,23 @@ export default function Navbar() {
               <Link to="/order-tracking" className="text-content-paragraph text-sm font-semibold hover:text-brand-hover transition-colors">
                 Track Order
               </Link>
+            </li>
+            <li className="border-t border-ui-border pt-4 mt-2">
+              {isLoggedIn ? (
+                <button
+                  onClick={() => { toggleMenu(); handleLogout(); }}
+                  className="flex items-center gap-3 text-red-500 text-sm font-bold hover:text-red-600 transition-colors w-full"
+                >
+                  <LogOut size={18} /> Logout
+                </button>
+              ) : (
+                <button
+                  onClick={() => { toggleMenu(); navigate("/login"); }}
+                  className="flex items-center gap-3 text-brand-primary text-sm font-bold hover:text-brand-hover transition-colors w-full"
+                >
+                  <LogIn size={18} /> Login
+                </button>
+              )}
             </li>
           </ul>
         </div>

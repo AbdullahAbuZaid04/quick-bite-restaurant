@@ -1,9 +1,86 @@
-import { OrdersCards, OrdersData, TheadTabels } from "../../data/mockData";
+import { useState, useEffect } from "react";
+import { ShoppingCart, Clock, CheckCircle2, XCircle } from "lucide-react";
 import OrderRow from "../../components/admin/OrderRow";
 import OrdersCard from "../../components/admin/OrdersCard";
 import Pagination from "../../components/common/Pagination";
+import { getAllOrdersApi, updateOrderStatusApi } from "../../api/orderService";
+import toast from 'react-hot-toast';
+
+import { STATUS_STYLES, STATUS_MAP } from "../../utils/statusColors";
+import { formatOrderId, formatPrice } from "../../utils/formatters";
+
+const TABLE_HEADERS = ["Order ID", "Customer", "Amount", "Status", "Date", "Actions"];
+
+const CARDS_CONFIG = [
+  { icon: <ShoppingCart size={20} />, title: "Total Orders", color: "text-blue-600 bg-blue-50 border-blue-200", key: "total" },
+  { icon: <Clock size={20} />, title: "Pending", color: STATUS_STYLES.pending, key: "pending" },
+  { icon: <CheckCircle2 size={20} />, title: "Delivered", color: STATUS_STYLES.delivered, key: "delivered" },
+  { icon: <XCircle size={20} />, title: "Cancelled", color: STATUS_STYLES.cancelled, key: "cancelled" },
+];
 
 export default function OrdersManagement() {
+  const [orders, setOrders] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [meta, setMeta] = useState({});
+  const [updatingId, setUpdatingId] = useState(null);
+
+  const limit = 20;
+
+  const fetchOrders = async (page = 1) => {
+    setIsLoading(true);
+    try {
+      const offset = (page - 1) * limit;
+      const result = await getAllOrdersApi({ limit, offset });
+      if (result.success) {
+        setOrders(result.data || []);
+        setMeta(result.meta || {});
+      }
+    } catch (error) {
+      console.error('Failed to fetch orders:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders(currentPage);
+  }, [currentPage]);
+
+  const handleStatusChange = async (orderId, newStatus) => {
+    setUpdatingId(orderId);
+    try {
+      const result = await updateOrderStatusApi(orderId, newStatus);
+      if (result.success) {
+        toast.success("Order status updated successfully!");
+        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+      } else {
+        toast.error(result.message || 'Failed to update status');
+        fetchOrders(currentPage);
+      }
+    } catch (error) {
+      toast.error(error.message);
+      fetchOrders(currentPage);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const totalPages = meta.total ? Math.ceil(meta.total / (meta.limit || limit)) : 1;
+
+  const orderCounts = orders.reduce((acc, o) => {
+    acc.total = (acc.total || 0) + 1;
+    const key = o.status;
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+
+  const cardValues = {
+    total: meta.total || orderCounts.total || 0,
+    pending: orderCounts.pending || 0,
+    delivered: orderCounts.delivered || 0,
+    cancelled: orderCounts.cancelled || 0,
+  };
 
   return (
     <div>
@@ -18,43 +95,72 @@ export default function OrdersManagement() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-        {OrdersCards.map((card, index) => (
+        {CARDS_CONFIG.map((card, index) => (
           <OrdersCard
             key={index}
             icon={card.icon}
             title={card.title}
-            value={card.value}
+            value={cardValues[card.key] ?? 0}
             color={card.color}
           />
         ))}
       </div>
 
-      <div className="bg-ui-white rounded-2xl  border border-ui-border overflow-hidden">
+      <div className="bg-ui-white rounded-2xl border border-ui-border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left min-w-[900px]">
             <thead className="bg-brand-primary text-white text-sm text-center font-bold uppercase">
               <tr>
-                {TheadTabels.Orders.map((th, index) => (
+                {TABLE_HEADERS.map((th, index) => (
                   <th key={index} className="py-5 px-6">{th}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {OrdersData.map((order, index) =>
-                <OrderRow
-                  key={index}
-                  OrderID={order.id}
-                  Customer={order.customer}
-                  Amount={order.amount}
-                  Status={order.status}
-                  Date={order.date}
-                />
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-16">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-8 h-8 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-gray-400 text-sm font-medium">Loading orders...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : orders.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-16 text-gray-400 text-sm font-medium">
+                    No orders found
+                  </td>
+                </tr>
+              ) : (
+                orders.map((order) => (
+                  <OrderRow
+                    key={order.id}
+                    OrderID={formatOrderId(order.id)}
+                    Customer={order.user_name}
+                    Amount={formatPrice(order.total_amount)}
+                    Status={STATUS_MAP[order.status] || order.status}
+                    statusKey={order.status}
+                    Date={order.created_at}
+                    updating={updatingId === order.id}
+                    onStatusChange={(newStatus) => handleStatusChange(order.id, newStatus)}
+                  />
+                ))
               )}
             </tbody>
           </table>
         </div>
 
-        <Pagination currentPage={1} totalPages={6} totalItems={24} itemsPerPage={4} itemName="orders" />
+        {orders.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={meta.total || orders.length}
+            itemsPerPage={meta.limit || limit}
+            itemName="orders"
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
     </div>
   );

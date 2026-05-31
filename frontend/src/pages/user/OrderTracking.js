@@ -1,8 +1,77 @@
-import { SlidersHorizontal, Search, ChevronRight } from 'lucide-react';
+import { Search } from 'lucide-react';
 import Navbar from '../../components/common/Navbar';
-import { OrderTrackingData } from '../../data/mockData';
+import { getMyOrders, cancelOrderApi } from '../../api/orderService';
+import { useEffect, useState, useMemo } from 'react';
+import { getStatusColor, STATUS_MAP } from '../../utils/statusColors';
+import OrderDetailsModal from '../../components/user/OrderDetailsModal';
+import OrderCancelledModal from '../../components/user/OrderCancelledModal';
+import { formatOrderId, formatPrice } from '../../utils/formatters';
+
+const getEstTime = (status) => {
+  switch (status) {
+    case 'pending': return '30 min';
+    case 'confirmed': return '25 min';
+    case 'preparing': return '15 min';
+    case 'out_for_delivery': return '5 min';
+    case 'delivered': return '--';
+    case 'cancelled':
+    case 'refunded': return '--';
+    default: return '--';
+  }
+};
 
 export default function OrderTracking() {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [cancelOrderId, setCancelOrderId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    const fetchMyOrders = async () => {
+      try {
+        const response = await getMyOrders();
+        if (response.success) {
+          setOrders(response.data);
+        } else {
+          setError(response.message || "Failed to fetch orders");
+        }
+      } catch (err) {
+        setError(err.message || "Failed to fetch orders");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMyOrders();
+  }, []);
+
+  const handleCancelOrder = async (orderId) => {
+    try {
+      const response = await cancelOrderApi(orderId);
+      if (response.success) {
+        setOrders(prevOrders => prevOrders.map(order =>
+          order.id === orderId ? { ...order, status: 'cancelled' } : order
+        ));
+        setCancelOrderId(null);
+      } else {
+        setError(response.message || "Failed to cancel order");
+      }
+    } catch (err) {
+      setError("An error occurred while canceling the order.");
+    }
+  };
+
+  const filteredOrders = useMemo(() =>
+    Array.isArray(orders)
+      ? orders.filter(o => {
+        if (!searchQuery) return true;
+        const query = searchQuery.toLowerCase();
+        return String(o.id).includes(query) || formatOrderId(o.id).toLowerCase().includes(query);
+      })
+      : []
+  , [orders, searchQuery]);
+
   return (
     <div className="min-h-screen bg-ui-mainBg font-sans pb-20">
       <Navbar />
@@ -15,8 +84,7 @@ export default function OrderTracking() {
                 Track Your Orders
               </h1>
               <p className="text-content-subtitle max-w-xl leading-relaxed text-sm md:text-base">
-                Monitor your active and previous orders in one place. We ensure your culinary
-                experience is seamless from kitchen to doorstep.
+                Monitor your active and previous orders in one place.
               </p>
             </div>
 
@@ -24,6 +92,8 @@ export default function OrderTracking() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-content-subtitle group-focus-within:text-brand-primary transition-colors" size={20} />
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by Order ID..."
                 className="w-full bg-ui-card py-4 pl-12 pr-4 rounded-2xl text-sm outline-none border border-ui-border focus:border-brand-primary transition-all"
               />
@@ -36,10 +106,6 @@ export default function OrderTracking() {
 
             <div className="flex justify-between items-center px-8 py-8 border-b border-ui-mainBg">
               <h2 className="text-xl font-bold text-content-paragraph">Recent Orders</h2>
-              <button className="flex items-center gap-2 px-4 py-2 bg-ui-mainBg rounded-xl text-[11px] text-content-paragraph font-bold border border-ui-border hover:bg-gray-100 transition-colors">
-                <span>Filter: Last 30 Days</span>
-                <SlidersHorizontal size={14} />
-              </button>
             </div>
 
             <section className='mx-10'>
@@ -57,44 +123,75 @@ export default function OrderTracking() {
                     </tr>
                   </thead>
                   <tbody className="text-sm">
-                    {OrderTrackingData.map((order, idx) => (
-                      <tr key={idx} className="border-b border-ui-border text-center hover:bg-ui-mainBg transition-all">
-                        <td className="px-6 py-5 font-black text-content-paragraph">{order.id}</td>
-                        <td className="px-6 py-5 text-content-subtitle font-medium">{order.date}</td>
-                        <td className="px-6 py-5 font-bold text-content-paragraph">
-                          <span className="bg-ui-mainBg px-3 py-1.5 rounded-lg border border-ui-border">{order.items} items</span>
-                        </td>
-                        <td className="px-6 py-5 font-black text-brand-primary text-base">{order.total}</td>
-                        <td className="px-6 py-5">
-                          <span className={`px-4 py-1.5 mx-auto rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 w-fit border ${order.statusColor}`}>
-                            {order.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-5 font-bold text-content-paragraph">
-                          {order.estTime}
-                        </td>
-                        <td className="px-6 py-5 text-center">
-                          <button className="relative mx-auto text-brand-primary font-bold group">
-                            {order.action}
-                            <span className="absolute bottom-0 left-0 w-0 h-[2px] group-hover:w-full bg-brand-primary rounded-xl transition-all duration-300"></span>
-                          </button>
+                    {loading ? (
+                      <tr>
+                        <td colSpan="7" className="text-center py-16">
+                          <div className="flex flex-col items-center gap-3">
+                            <div className="w-8 h-8 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
+                            <span className="text-gray-400 text-sm font-medium">Loading orders...</span>
+                          </div>
                         </td>
                       </tr>
-                    ))}
+                    ) : error ? (
+                      <tr>
+                        <td colSpan="7" className="text-center py-16">
+                          <div className="flex flex-col items-center gap-3">
+                            <span className="text-red-500 font-bold bg-red-50 px-6 py-3 rounded-xl border border-red-200">
+                              {error}
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : filteredOrders.length === 0 && searchQuery ? (
+                      <tr>
+                        <td colSpan="7" className="py-8 text-content-subtitle">
+                          <p className="text-content-paragraph text-lg">No orders match your search <span className="text-brand-primary font-bold">({searchQuery})</span></p>
+                        </td>
+                      </tr>
+                    ) : filteredOrders.length === 0 ? (
+                      <tr>
+                        <td colSpan="7" className="py-8 text-content-subtitle">
+                          <p className="text-content-paragraph text-lg">No orders found</p>
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredOrders.map((order) => (
+                        <tr key={order.id} className="border-b border-ui-border text-center hover:bg-ui-mainBg transition-all">
+                          <td className="px-6 py-5 font-black text-content-paragraph">{formatOrderId(order.id)}</td>
+                          <td className="px-6 py-5 text-content-subtitle font-medium">{order.created_at}</td>
+                          <td className="px-6 py-5 font-bold text-content-paragraph">
+                            <span className="bg-ui-mainBg px-3 py-1.5 rounded-lg border border-ui-border">{order.items_count || 0} items</span>
+                          </td>
+                          <td className="px-6 py-5 font-black text-brand-primary text-base">{formatPrice(order.total_amount)}</td>
+                          <td className="px-6 py-5">
+                            <span className={`px-4 py-1.5 mx-auto rounded-xl text-sm font-bold flex items-center justify-center gap-2 w-fit border ${getStatusColor(order.status)}`}>
+                              {STATUS_MAP[order.status]}
+                            </span>
+                          </td>
+                          <td className="px-6 py-5 font-bold text-content-paragraph">
+                            {getEstTime(order.status)}
+                          </td>
+                          <td className="px-6 py-5 text-center">
+                            <button
+                              className="relative mx-auto text-brand-primary font-bold group"
+                              onClick={() => order.status === 'pending' ? setCancelOrderId(order.id) : setSelectedOrder(order.id)}
+                            >
+                              {order.status === 'pending' ? 'Cancel' : 'View'}
+                              <span className="absolute bottom-0 left-0 w-0 h-[2px] group-hover:w-full bg-brand-primary rounded-xl transition-all duration-300"></span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
             </section>
-
-            <div className="p-8 text-center bg-gray-50/30 border-t border-ui-mainBg">
-              <button className="text-xs font-bold text-content-subtitle hover:text-brand-primary transition-colors flex items-center gap-2 mx-auto">
-                View All Order History
-                <ChevronRight size={14} />
-              </button>
-            </div>
           </div>
         </section>
       </main>
+      <OrderDetailsModal isOpen={!!selectedOrder} onClose={() => setSelectedOrder(null)} orderId={selectedOrder} />
+      <OrderCancelledModal isOpen={!!cancelOrderId} onClose={() => setCancelOrderId(null)} orderId={cancelOrderId} onCancel={handleCancelOrder} />
     </div>
   );
 }

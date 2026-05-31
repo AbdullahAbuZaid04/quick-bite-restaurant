@@ -1,7 +1,8 @@
+import { memo } from "react";
 import { Trash2 } from "lucide-react";
 
-export default function UserRow({ name, email, role, handleClickDelete }) {
-  const roleStyles = role === "Admin" ? "bg-red-50 text-red-500" : "bg-blue-50 text-blue-400";
+const UserRow = memo(function UserRow({ name, email, role, handleClickDelete }) {
+  const roleStyles = role === "admin" ? "bg-red-50 text-red-500" : "bg-blue-50 text-blue-400";
 
   return (
     <tr className="border-b border-ui-border text-center hover:bg-ui-mainBg">
@@ -16,11 +17,13 @@ export default function UserRow({ name, email, role, handleClickDelete }) {
       </td>
       <td className="py-4 px-6 text-center">
         {
-          role !== "Admin" && <button onClick={handleClickDelete} className="text-content-subtitle hover:text-status-cancelled transition-colors duration-300">
+          role !== "admin" && <button onClick={handleClickDelete} className="text-content-subtitle hover:text-status-cancelled transition-colors duration-300">
             <Trash2 size={18} />
           </button>
         }
       </td>
     </tr>
   );
-}
+});
+
+export default UserRow;
