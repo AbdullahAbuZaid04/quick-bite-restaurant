@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AlertCircle, RefreshCw } from "lucide-react";
 import UserRow from "../../components/admin/UserRow";
 import Pagination from "../../components/common/Pagination";
 import { useUsers } from "../../hooks/useUsers";
@@ -8,7 +9,7 @@ const TABLE_HEADERS = ["User Name", "Email Address", "Role", "Actions"];
 
 export default function UsersManagement() {
   const [currentPage, setCurrentPage] = useState(1);
-  const { isUserDeleteModalOpen, setIsUserDeleteModalOpen, selectedUser, users, handleDeleteUser, handleClickDeleteUser, isLoadingUsers, refetchUsers } = useUsers();
+  const { isUserDeleteModalOpen, setIsUserDeleteModalOpen, selectedUser, users, usersError, handleDeleteUser, handleClickDeleteUser, isLoadingUsers, refetchUsers } = useUsers();
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -47,6 +48,24 @@ export default function UsersManagement() {
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-8 h-8 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
                       <span className="text-gray-400 text-sm font-medium">Loading users...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : usersError ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-16">
+                    <div className="flex flex-col items-center justify-center gap-3">
+                      <div className="bg-red-50 p-3 rounded-full">
+                        <AlertCircle className="w-8 h-8 text-red-500" />
+                      </div>
+                      <span className="text-red-500 text-sm font-medium">{usersError}</span>
+                      <button
+                        onClick={() => refetchUsers(currentPage)}
+                        className="flex items-center gap-2 mt-2 px-4 py-2 bg-gray-800 text-white hover:bg-gray-700 rounded-lg transition-colors text-sm font-medium"
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                        Retry
+                      </button>
                     </div>
                   </td>
                 </tr>
