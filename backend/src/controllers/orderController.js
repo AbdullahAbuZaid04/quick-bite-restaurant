@@ -101,13 +101,18 @@ const create = asyncHandler(async (req, res) => {
     await conn.beginTransaction();
 
     // Lock the menu rows we care about so prices/availability can't
-    // change mid-transaction. Note: mysql2 can't bind a list directly
-    // into `IN (?)`, so build the placeholders manually.
+    // change mid-transaction. Soft-deleted items (deleted_at IS NOT NULL)
+    // are excluded — they no longer exist for the purposes of new orders,
+    // even though their rows physically remain so historical orders can
+    // still resolve their name and price.
+    // Note: mysql2 can't bind a list directly into `IN (?)`, so build
+    // the placeholders manually.
     const ids = mergedItems.map((i) => i.menu_item_id);
     const placeholders = ids.map(() => '?').join(',');
     const [menuRows] = await conn.execute(
       `SELECT id, name, price, is_available
-       FROM menu_items WHERE id IN (${placeholders})
+       FROM menu_items
+       WHERE id IN (${placeholders}) AND deleted_at IS NULL
        FOR UPDATE`,
       ids
     );

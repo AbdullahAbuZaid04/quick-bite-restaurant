@@ -5,13 +5,19 @@ const asyncHandler = require('../utils/asyncHandler');
 const { ok, created, noContent } = require('../utils/respond');
 const { NotFoundError, BadRequestError } = require('../utils/errors');
 
+// All public/admin read paths exclude soft-deleted rows.
+// Historical order_items still JOIN to find the original row, because
+// it physically remains in the table.
+const M_LIVE = 'm.deleted_at IS NULL';
+
 /**
- * Helper: assert that a category exists. Throws 400 if not, so the
- * frontend gets a clean message rather than a raw FK error.
+ * Helper: assert that a category exists *and is not retired*.
+ * Throws 400 if not, so the frontend gets a clean message rather
+ * than a raw FK error.
  */
 async function assertCategoryExists(categoryId) {
   const [rows] = await pool.execute(
-    'SELECT id FROM categories WHERE id = ? LIMIT 1',
+    'SELECT id FROM categories WHERE id = ? AND deleted_at IS NULL LIMIT 1',
     [categoryId]
   );
   if (rows.length === 0) {
@@ -38,6 +44,8 @@ const SELECT_MENU = `
  *   q            case-insensitive search in name/description
  *   limit, offset
  *
+ * Soft-deleted items are never returned.
+ *
  * Note on pagination: mysql2 prepared statements forbid binding
  * LIMIT/OFFSET as parameters in some versions, so we cast to Number
  * and inline them after Joi has validated they're safe integers.
@@ -45,7 +53,7 @@ const SELECT_MENU = `
 const list = asyncHandler(async (req, res) => {
   const { category_id, available, q, limit, offset } = req.query;
 
-  const where = [];
+  const where = [M_LIVE];
   const params = [];
 
   if (category_id !== undefined) {
@@ -61,7 +69,7 @@ const list = asyncHandler(async (req, res) => {
     params.push(`%${q}%`, `%${q}%`);
   }
 
-  const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
+  const whereSql = `WHERE ${where.join(' AND ')}`;
   const lim = Number(limit) || 50;
   const off = Number(offset) || 0;
 
@@ -84,10 +92,14 @@ const list = asyncHandler(async (req, res) => {
 
 /**
  * GET /api/menu/:id
+ * Soft-deleted items return 404.
  */
 const getById = asyncHandler(async (req, res) => {
   const id = Number(req.params.id);
-  const [rows] = await pool.execute(`${SELECT_MENU} WHERE m.id = ?`, [id]);
+  const [rows] = await pool.execute(
+    `${SELECT_MENU} WHERE m.id = ? AND ${M_LIVE}`,
+    [id]
+  );
   if (rows.length === 0) throw new NotFoundError('Menu item not found');
   return ok(res, rows[0]);
 });
@@ -122,12 +134,13 @@ const create = asyncHandler(async (req, res) => {
 /**
  * PUT /api/menu/:id  (admin / manager)
  * Partial-update friendly: only supplied fields are changed.
+ * Soft-deleted items cannot be updated (return 404).
  */
 const update = asyncHandler(async (req, res) => {
   const id = Number(req.params.id);
 
   const [existing] = await pool.execute(
-    'SELECT id FROM menu_items WHERE id = ? LIMIT 1',
+    'SELECT id FROM menu_items WHERE id = ? AND deleted_at IS NULL LIMIT 1',
     [id]
   );
   if (existing.length === 0) throw new NotFoundError('Menu item not found');
@@ -179,7 +192,7 @@ const setAvailability = asyncHandler(async (req, res) => {
   const { is_available } = req.body;
 
   const [existing] = await pool.execute(
-    'SELECT id FROM menu_items WHERE id = ? LIMIT 1',
+    'SELECT id FROM menu_items WHERE id = ? AND deleted_at IS NULL LIMIT 1',
     [id]
   );
   if (existing.length === 0) throw new NotFoundError('Menu item not found');
@@ -196,21 +209,31 @@ const setAvailability = asyncHandler(async (req, res) => {
 /**
  * DELETE /api/menu/:id  (admin)
  *
- * The FK on order_items.menu_item_id is ON DELETE RESTRICT, so menu items
- * that appear on existing orders cannot be deleted - mark them
- * `is_available = false` instead. The error handler turns the FK error
- * into a 409 if the caller insists.
+ * Soft delete: sets deleted_at = NOW() and is_available = 0. The row
+ * physically remains so historical order_items that reference this
+ * item still resolve the name/price via JOIN — but the item disappears
+ * from /api/menu listings, /api/menu/:id lookups, and from any
+ * subsequent order creation (assertMenuItem checks deleted_at).
+ *
+ * Unlike before, this works even when the item appears on past
+ * orders. Order history stays intact.
  */
 const remove = asyncHandler(async (req, res) => {
   const id = Number(req.params.id);
 
   const [existing] = await pool.execute(
-    'SELECT id FROM menu_items WHERE id = ? LIMIT 1',
+    'SELECT id FROM menu_items WHERE id = ? AND deleted_at IS NULL LIMIT 1',
     [id]
   );
   if (existing.length === 0) throw new NotFoundError('Menu item not found');
 
-  await pool.execute('DELETE FROM menu_items WHERE id = ?', [id]);
+  await pool.execute(
+    `UPDATE menu_items
+     SET deleted_at = CURRENT_TIMESTAMP,
+         is_available = 0
+     WHERE id = ?`,
+    [id]
+  );
   return noContent(res);
 });
 
