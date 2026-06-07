@@ -28,11 +28,11 @@ const stats = asyncHandler(async (_req, res) => {
     pool
       .execute("SELECT COUNT(*) AS total_customers FROM users WHERE role = 'customer'")
       .then((r) => r[0]),
-    pool.execute('SELECT COUNT(*) AS total_menu_items FROM menu_items').then((r) => r[0]),
+    pool.execute('SELECT COUNT(*) AS total_menu_items FROM menu_items WHERE deleted_at IS NULL').then((r) => r[0]),
     pool
-      .execute('SELECT COUNT(*) AS total_available_items FROM menu_items WHERE is_available = 1')
+      .execute('SELECT COUNT(*) AS total_available_items FROM menu_items WHERE is_available = 1 AND deleted_at IS NULL')
       .then((r) => r[0]),
-    pool.execute('SELECT COUNT(*) AS total_categories FROM categories').then((r) => r[0]),
+    pool.execute('SELECT COUNT(*) AS total_categories FROM categories WHERE deleted_at IS NULL').then((r) => r[0]),
     pool.execute('SELECT COUNT(*) AS total_orders FROM orders').then((r) => r[0]),
 
     // Orders grouped by status

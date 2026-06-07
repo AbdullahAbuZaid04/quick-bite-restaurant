@@ -5,14 +5,20 @@ const asyncHandler = require('../utils/asyncHandler');
 const { ok, created, noContent } = require('../utils/respond');
 const { NotFoundError, ConflictError } = require('../utils/errors');
 
+// All read paths exclude soft-deleted rows.
+// Historical JOINs (e.g. from menu_items or orders) still find them
+// because the rows physically remain in the table.
+const LIVE = 'deleted_at IS NULL';
+
 /**
  * GET /api/categories
- * Public. List all categories, alphabetically.
+ * Public. List all live categories, alphabetically.
  */
 const list = asyncHandler(async (_req, res) => {
   const [rows] = await pool.execute(
     `SELECT id, name, created_at, updated_at
      FROM categories
+     WHERE ${LIVE}
      ORDER BY name ASC`
   );
   return ok(res, rows);
@@ -20,13 +26,13 @@ const list = asyncHandler(async (_req, res) => {
 
 /**
  * GET /api/categories/:id
- * Public.
+ * Public. Soft-deleted categories return 404.
  */
 const getById = asyncHandler(async (req, res) => {
   const id = Number(req.params.id);
   const [rows] = await pool.execute(
     `SELECT id, name, created_at, updated_at
-     FROM categories WHERE id = ?`,
+     FROM categories WHERE id = ? AND ${LIVE}`,
     [id]
   );
   if (rows.length === 0) throw new NotFoundError('Category not found');
@@ -35,12 +41,14 @@ const getById = asyncHandler(async (req, res) => {
 
 /**
  * POST /api/categories  (admin / manager)
+ * Duplicate-name check ignores retired categories — the migration
+ * enforces this at the DB level too via uq_categories_name_live.
  */
 const create = asyncHandler(async (req, res) => {
   const { name } = req.body;
 
   const [dup] = await pool.execute(
-    'SELECT id FROM categories WHERE name = ? LIMIT 1',
+    `SELECT id FROM categories WHERE name = ? AND ${LIVE} LIMIT 1`,
     [name]
   );
   if (dup.length > 0) throw new ConflictError('A category with this name already exists');
@@ -64,13 +72,14 @@ const update = asyncHandler(async (req, res) => {
   const { name } = req.body;
 
   const [existing] = await pool.execute(
-    'SELECT id FROM categories WHERE id = ? LIMIT 1',
+    `SELECT id FROM categories WHERE id = ? AND ${LIVE} LIMIT 1`,
     [id]
   );
   if (existing.length === 0) throw new NotFoundError('Category not found');
 
   const [dup] = await pool.execute(
-    'SELECT id FROM categories WHERE name = ? AND id <> ? LIMIT 1',
+    `SELECT id FROM categories
+     WHERE name = ? AND id <> ? AND ${LIVE} LIMIT 1`,
     [name, id]
   );
   if (dup.length > 0) throw new ConflictError('Another category with this name already exists');
@@ -85,20 +94,42 @@ const update = asyncHandler(async (req, res) => {
 
 /**
  * DELETE /api/categories/:id  (admin)
- * The FK on menu_items.category_id is ON DELETE RESTRICT, so
- * MySQL will block this if menu items still reference the category;
- * the error handler turns ER_ROW_IS_REFERENCED_2 into a 409.
+ *
+ * Soft delete: sets deleted_at = NOW(). The row physically remains
+ * so historical menu_items and orders that reference this category
+ * can still resolve the category name via JOIN — but the category
+ * disappears from /api/categories listings and lookups.
+ *
+ * Refuses to delete a category that still has live menu items, so
+ * we don't leave items "orphaned" in a retired category. Admins
+ * should retire the items first (or move them to another category
+ * via PUT /api/menu/:id).
  */
 const remove = asyncHandler(async (req, res) => {
   const id = Number(req.params.id);
 
   const [existing] = await pool.execute(
-    'SELECT id FROM categories WHERE id = ? LIMIT 1',
+    `SELECT id FROM categories WHERE id = ? AND ${LIVE} LIMIT 1`,
     [id]
   );
   if (existing.length === 0) throw new NotFoundError('Category not found');
 
-  await pool.execute('DELETE FROM categories WHERE id = ?', [id]);
+  const [liveChildren] = await pool.execute(
+    `SELECT COUNT(*) AS n FROM menu_items
+     WHERE category_id = ? AND deleted_at IS NULL`,
+    [id]
+  );
+  if (liveChildren[0].n > 0) {
+    throw new ConflictError(
+      'Cannot delete: this category still has live menu items. Retire them first, or reassign them to another category.',
+      { live_items: liveChildren[0].n }
+    );
+  }
+
+  await pool.execute(
+    'UPDATE categories SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?',
+    [id]
+  );
   return noContent(res);
 });
 
