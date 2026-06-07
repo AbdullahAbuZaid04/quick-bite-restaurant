@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react';
+import { Eye, Search, Trash2 } from 'lucide-react';
 import Navbar from '../../components/common/Navbar';
 import { getMyOrders, cancelOrderApi } from '../../api/orderService';
 import { useEffect, useState, useMemo } from 'react';
@@ -6,19 +6,6 @@ import { getStatusColor, STATUS_MAP } from '../../utils/statusColors';
 import OrderDetailsModal from '../../components/user/OrderDetailsModal';
 import OrderCancelledModal from '../../components/user/OrderCancelledModal';
 import { formatOrderId, formatPrice } from '../../utils/formatters';
-
-const getEstTime = (status) => {
-  switch (status) {
-    case 'pending': return '30 min';
-    case 'confirmed': return '25 min';
-    case 'preparing': return '15 min';
-    case 'out_for_delivery': return '5 min';
-    case 'delivered': return '--';
-    case 'cancelled':
-    case 'refunded': return '--';
-    default: return '--';
-  }
-};
 
 export default function OrderTracking() {
   const [orders, setOrders] = useState([]);
@@ -70,7 +57,7 @@ export default function OrderTracking() {
         return String(o.id).includes(query) || formatOrderId(o.id).toLowerCase().includes(query);
       })
       : []
-  , [orders, searchQuery]);
+    , [orders, searchQuery]);
 
   return (
     <div className="min-h-screen bg-ui-mainBg font-sans pb-20">
@@ -118,7 +105,6 @@ export default function OrderTracking() {
                       <th className="py-5 px-6">Items</th>
                       <th className="py-5 px-6">Total</th>
                       <th className="py-5 px-6">Status</th>
-                      <th className="py-5 px-6">Arrival</th>
                       <th className="py-5 px-6 text-center">Action</th>
                     </tr>
                   </thead>
@@ -168,17 +154,25 @@ export default function OrderTracking() {
                               {STATUS_MAP[order.status]}
                             </span>
                           </td>
-                          <td className="px-6 py-5 font-bold text-content-paragraph">
-                            {getEstTime(order.status)}
-                          </td>
                           <td className="px-6 py-5 text-center">
-                            <button
-                              className="relative mx-auto text-brand-primary font-bold group"
-                              onClick={() => order.status === 'pending' ? setCancelOrderId(order.id) : setSelectedOrder(order.id)}
-                            >
-                              {order.status === 'pending' ? 'Cancel' : 'View'}
-                              <span className="absolute bottom-0 left-0 w-0 h-[2px] group-hover:w-full bg-brand-primary rounded-xl transition-all duration-300"></span>
-                            </button>
+                            <div className='flex items-center justify-center gap-2'>
+                              <button
+                                className='cursor-pointer hover:text-brand-primary transition-colors duration-200'
+                                title='View Order'
+                                onClick={() => setSelectedOrder(order.id)}
+                              >
+                                <Eye size={20} />
+                              </button>
+                              {order.status === 'pending' && (
+                                <button
+                                  className='cursor-pointer hover:text-red-500 transition-colors duration-200'
+                                  title='Cancel Order'
+                                  onClick={() => setCancelOrderId(order.id)}
+                                >
+                                  <Trash2 size={20} />
+                                </button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))
@@ -188,10 +182,10 @@ export default function OrderTracking() {
               </div>
             </section>
           </div>
-        </section>
-      </main>
+        </section >
+      </main >
       <OrderDetailsModal isOpen={!!selectedOrder} onClose={() => setSelectedOrder(null)} orderId={selectedOrder} />
       <OrderCancelledModal isOpen={!!cancelOrderId} onClose={() => setCancelOrderId(null)} orderId={cancelOrderId} onCancel={handleCancelOrder} />
-    </div>
+    </div >
   );
 }
