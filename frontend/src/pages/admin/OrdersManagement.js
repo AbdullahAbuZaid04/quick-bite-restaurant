@@ -1,10 +1,8 @@
-import { useState, useEffect } from "react";
-import { ShoppingCart, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { ShoppingCart, Clock, CheckCircle2, XCircle, AlertCircle, RefreshCw } from "lucide-react";
 import OrderRow from "../../components/admin/OrderRow";
 import OrdersCard from "../../components/admin/OrdersCard";
 import Pagination from "../../components/common/Pagination";
-import { getAllOrdersApi, updateOrderStatusApi } from "../../api/orderService";
-import toast from 'react-hot-toast';
+import { useOrders } from "../../hooks/useOrders";
 
 import { STATUS_STYLES, STATUS_MAP } from "../../utils/statusColors";
 import { formatOrderId, formatPrice } from "../../utils/formatters";
@@ -19,52 +17,18 @@ const CARDS_CONFIG = [
 ];
 
 export default function OrdersManagement() {
-  const [orders, setOrders] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [meta, setMeta] = useState({});
-  const [updatingId, setUpdatingId] = useState(null);
-
   const limit = 20;
-
-  const fetchOrders = async (page = 1) => {
-    setIsLoading(true);
-    try {
-      const offset = (page - 1) * limit;
-      const result = await getAllOrdersApi({ limit, offset });
-      if (result.success) {
-        setOrders(result.data || []);
-        setMeta(result.meta || {});
-      }
-    } catch (error) {
-      console.error('Failed to fetch orders:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchOrders(currentPage);
-  }, [currentPage]);
-
-  const handleStatusChange = async (orderId, newStatus) => {
-    setUpdatingId(orderId);
-    try {
-      const result = await updateOrderStatusApi(orderId, newStatus);
-      if (result.success) {
-        toast.success("Order status updated successfully!");
-        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
-      } else {
-        toast.error(result.message || 'Failed to update status');
-        fetchOrders(currentPage);
-      }
-    } catch (error) {
-      toast.error(error.message);
-      fetchOrders(currentPage);
-    } finally {
-      setUpdatingId(null);
-    }
-  };
+  const {
+    orders,
+    isLoading,
+    currentPage,
+    setCurrentPage,
+    meta,
+    updatingId,
+    ordersError,
+    refetchOrders,
+    handleStatusChange
+  } = useOrders(limit);
 
   const totalPages = meta.total ? Math.ceil(meta.total / (meta.limit || limit)) : 1;
 
@@ -123,6 +87,24 @@ export default function OrdersManagement() {
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-8 h-8 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
                       <span className="text-gray-400 text-sm font-medium">Loading orders...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : ordersError ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-16">
+                    <div className="flex flex-col items-center justify-center gap-3">
+                      <div className="bg-red-50 p-3 rounded-full">
+                        <AlertCircle className="w-8 h-8 text-red-500" />
+                      </div>
+                      <span className="text-red-500 text-sm font-medium">{ordersError}</span>
+                      <button
+                        onClick={() => refetchOrders(currentPage)}
+                        className="flex items-center gap-2 mt-2 px-4 py-2 bg-gray-800 text-white hover:bg-gray-700 rounded-lg transition-colors text-sm font-medium"
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                        Retry
+                      </button>
                     </div>
                   </td>
                 </tr>
