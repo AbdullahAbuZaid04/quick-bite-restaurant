@@ -11,14 +11,17 @@ export default function Register() {
   const { register } = useAuth();
   const { cartItems } = useCart();
 
-  const { formData, errors, showPassword, setShowPassword, handleChange, handleSubmit, loading } = useForm({
+  const { formData, errors, setErrors, showPassword, setShowPassword, handleChange, handleSubmit, loading } = useForm({
     fullName: "",
     email: "",
     password: ""
   }, onSuccess, "register");
 
+  console.log(errors);
+
   async function onSuccess() {
     const result = await register(formData.fullName, formData.email, formData.password);
+    console.log(result);
     if (result.success) {
       const registeredUser = result.user;
       if (cartItems.length > 0) {
@@ -28,6 +31,8 @@ export default function Register() {
       } else {
         navigate("/");
       }
+    } else {
+      setErrors({ ...errors, server: result.error });
     }
   }
 
@@ -68,7 +73,7 @@ export default function Register() {
                   />
                 </div>
                 {errors.fullName && (
-                  <p className="text-right text-red-500 text-sm mt-2">{errors.fullName}</p>
+                  <p className="text-red-500 text-sm mt-2">{errors.fullName}</p>
                 )}
               </div>
 
@@ -79,7 +84,7 @@ export default function Register() {
                 <div className="relative group">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-content-subtitle group-focus-within:text-brand-primary transition-colors" size={18} />
                   <input
-                    className={`w-full bg-ui-mainBg border ${errors.email ? "border-red-500" : "border-ui-border"} rounded-2xl py-4 pl-12 pr-4 focus:border-brand-primary outline-none transition-all text-sm placeholder:text-gray-400`}
+                    className={`w-full bg-ui-mainBg border ${errors.email || errors.server ? "border-red-500" : "border-ui-border"} rounded-2xl py-4 pl-12 pr-4 focus:border-brand-primary outline-none transition-all text-sm placeholder:text-gray-400`}
                     type="email"
                     id="email"
                     name="email"
@@ -88,8 +93,8 @@ export default function Register() {
                     placeholder="name@example.com"
                   />
                 </div>
-                {errors.email && (
-                  <p className="text-right text-red-500 text-sm mt-2">{errors.email}</p>
+                {(errors.email || errors.server) && (
+                  <p className="text-red-500 text-sm mt-2">{errors.email || errors.server}</p>
                 )}
               </div>
 
@@ -113,7 +118,7 @@ export default function Register() {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-right text-red-500 text-sm mt-2">{errors.password}</p>
+                  <p className="text-red-500 text-sm mt-2">{errors.password}</p>
                 )}
               </div>
 
