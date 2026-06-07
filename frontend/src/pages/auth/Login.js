@@ -16,6 +16,8 @@ export default function Login() {
     password: ""
   }, onSuccess, "login");
 
+  console.log(errors);
+
   async function onSuccess() {
     const result = await login(formData.email, formData.password);
     if (result.success) {
@@ -28,11 +30,9 @@ export default function Login() {
         navigate("/");
       }
     } else {
-      setErrors({ email: result.error || "Invalid email or password" });
+      setErrors({ ...errors, server: result.error });
     }
   }
-
-
 
   return (
     <div className="min-h-screen bg-ui-mainBg">
@@ -63,7 +63,7 @@ export default function Login() {
                 <div className="relative group">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-content-subtitle group-focus-within:text-brand-primary transition-colors" size={18} />
                   <input
-                    className={`w-full bg-ui-mainBg border ${errors.email ? "border-red-500" : "border-ui-border"} rounded-2xl py-4 pl-12 pr-4 focus:border-brand-primary outline-none transition-all placeholder:text-gray-400 text-sm`}
+                    className={`w-full bg-ui-mainBg border ${errors.email || errors.server ? "border-red-500" : "border-ui-border"} rounded-2xl py-4 pl-12 pr-4 focus:border-brand-primary outline-none transition-all placeholder:text-gray-400 text-sm`}
                     type="email"
                     id="email"
                     name="email"
@@ -73,7 +73,7 @@ export default function Login() {
                   />
                 </div>
                 {errors.email && (
-                  <p className="text-right text-red-500 text-sm mt-2">{errors.email}</p>
+                  <p className="text-red-500 text-sm mt-2">{errors.email}</p>
                 )}
               </div>
 
@@ -84,7 +84,7 @@ export default function Login() {
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-content-subtitle group-focus-within:text-brand-primary transition-colors" size={18} />
                   <input
-                    className={`w-full bg-ui-mainBg border ${errors.password ? "border-red-500" : "border-ui-border"} rounded-2xl py-4 pl-12 pr-12 focus:border-brand-primary outline-none transition-all text-sm`}
+                    className={`w-full bg-ui-mainBg border ${errors.password || errors.server ? "border-red-500" : "border-ui-border"} rounded-2xl py-4 pl-12 pr-12 focus:border-brand-primary outline-none transition-all text-sm`}
                     type={showPassword ? "text" : "password"}
                     id="password"
                     name="password"
@@ -97,9 +97,13 @@ export default function Login() {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-right text-red-500 text-sm mt-2">{errors.password}</p>
+                  <p className="text-red-500 text-sm mt-2">{errors.password}</p>
                 )}
               </div>
+
+              {errors.server && (
+                <p className="text-red-500 text-sm mt-2 text-center bg-red-50 rounded-xl py-2">{errors.server}</p>
+              )}
 
               <button
                 type="submit"
