@@ -1,33 +1,14 @@
-import { useState, useEffect } from "react";
-import { ShoppingBag, LayoutDashboard, Users, UtensilsCrossed } from "lucide-react";
+import { ShoppingBag, LayoutDashboard, Users, UtensilsCrossed, Plus, AlertCircle, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DashboardCard from "../../components/admin/DashboardCard"
 import DashboardRow from "../../components/admin/DashboardRow"
-import { getDashboardApi } from "../../api/dashboardService";
+import { useDashboard } from "../../hooks/useDashboard";
 import { formatOrderId, formatPrice } from "../../utils/formatters";
 import { STATUS_MAP } from "../../utils/statusColors";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [data, setData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchDashboard = async () => {
-      setIsLoading(true);
-      try {
-        const result = await getDashboardApi();
-        if (result.success) {
-          setData(result.data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch dashboard:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchDashboard();
-  }, []);
+  const { data, isLoading, dashboardError, refetchDashboard } = useDashboard();
 
   const counters = data?.counters || {};
   const revenue = data?.revenue || {};
@@ -103,6 +84,24 @@ export default function Dashboard() {
                         </div>
                       </td>
                     </tr>
+                  ) : dashboardError ? (
+                    <tr>
+                      <td colSpan={4} className="text-center py-16">
+                        <div className="flex flex-col items-center justify-center gap-3">
+                          <div className="bg-red-50 p-3 rounded-full">
+                            <AlertCircle className="w-8 h-8 text-red-500" />
+                          </div>
+                          <span className="text-red-500 text-sm font-medium">{dashboardError}</span>
+                          <button
+                            onClick={refetchDashboard}
+                            className="flex items-center gap-2 mt-2 px-4 py-2 bg-gray-800 text-white hover:bg-gray-700 rounded-lg transition-colors text-sm font-medium"
+                          >
+                            <RefreshCw className="w-4 h-4" />
+                            Retry
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
                   ) : recentOrders.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="py-16 text-gray-400 text-sm font-medium">
@@ -128,16 +127,14 @@ export default function Dashboard() {
 
           <section className="flex-1">
             <h2 className="text-xl md:text-2xl font-bold text-content-paragraph mb-6">Quick Actions</h2>
-            <div className="grid grid-cols-2 xl:grid-cols-1 gap-4">
-              <button onClick={() => navigate("/manage-menu")} className="w-full h-32 bg-brand-primary text-white rounded-2xl flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:bg-brand-hover">
-                <div className="bg-ui-white/20 p-3 rounded-2xl">
-                  <ShoppingBag size={28} />
-                </div>
-                <span className="font-bold text-sm md:text-base">
-                  New Product
-                </span>
-              </button>
-            </div>
+            <button onClick={() => navigate("/manage-menu")} className="w-full h-32 bg-brand-primary text-white rounded-2xl flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:bg-brand-hover">
+              <div className="bg-ui-white/20 p-3 rounded-2xl">
+                <Plus size={28} />
+              </div>
+              <span className="font-bold text-sm md:text-base">
+                New Product
+              </span>
+            </button>
           </section>
         </div>
       </main>
