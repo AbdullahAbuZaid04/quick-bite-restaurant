@@ -13,16 +13,21 @@ export function useMenu() {
   const [categories, setCategories] = useState([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const [menuError, setMenuError] = useState(null);
 
   const fetchProducts = async () => {
+    setMenuError(null);
     setIsLoadingProducts(true);
     try {
       const result = await getAllMenu();
       if (result.success) {
         setProducts(result.data || []);
+      } else {
+        setMenuError(result.message || 'Failed to load products');
       }
     } catch (error) {
       console.error('Failed to fetch products:', error);
+      setMenuError(error.message);
     } finally {
       setIsLoadingProducts(false);
     }
@@ -121,6 +126,7 @@ export function useMenu() {
     categories,
     isLoadingProducts,
     isLoadingCategories,
+    menuError,
     handleAddProduct,
     handleClickEdit,
     handleEdit,

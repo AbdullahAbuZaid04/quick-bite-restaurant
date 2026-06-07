@@ -7,8 +7,10 @@ export function useUsers() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+  const [usersError, setUsersError] = useState(null);
 
   const fetchUsers = async (page = 1) => {
+    setUsersError(null);
     setIsLoadingUsers(true);
     try {
       const result = await getAllUsersApi(page);
@@ -16,9 +18,12 @@ export function useUsers() {
         const data = result.data || [];
         data.meta = result.meta || {};
         setUsers(data);
+      } else {
+        setUsersError(result.message || 'Failed to load users');
       }
     } catch (error) {
       console.error('Failed to fetch users:', error);
+      setUsersError(error.message);
     } finally {
       setIsLoadingUsers(false);
     }
@@ -57,6 +62,7 @@ export function useUsers() {
     selectedUser,
     users,
     isLoadingUsers,
+    usersError,
     handleClickDeleteUser,
     handleDeleteUser,
     refetchUsers: fetchUsers

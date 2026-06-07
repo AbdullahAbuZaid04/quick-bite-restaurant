@@ -1,4 +1,4 @@
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, AlertCircle, RefreshCw } from "lucide-react";
 import CategoryModal from "../../components/admin/CategoryModal";
 import { useCategories } from "../../hooks/useCategories";
 import DeleteModal from "../../components/admin/DeleteModal";
@@ -43,9 +43,18 @@ export default function CategoriesManagement() {
               ) : categoriesError ? (
                 <tr>
                   <td colSpan={3} className="text-center py-16">
-                    <div className="flex flex-col items-center gap-3">
+                    <div className="flex flex-col items-center justify-center gap-3">
+                      <div className="bg-red-50 p-3 rounded-full">
+                        <AlertCircle className="w-8 h-8 text-red-500" />
+                      </div>
                       <span className="text-red-500 text-sm font-medium">{categoriesError}</span>
-                      <button onClick={refetchCategories} className="text-brand-primary underline text-sm">Retry</button>
+                      <button
+                        onClick={refetchCategories}
+                        className="flex items-center gap-2 mt-2 px-4 py-2 bg-gray-800 text-white hover:bg-gray-700 rounded-lg transition-colors text-sm font-medium"
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                        Retry
+                      </button>
                     </div>
                   </td>
                 </tr>
