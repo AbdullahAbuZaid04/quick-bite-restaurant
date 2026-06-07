@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, CheckCircle2, ArrowLeftRight, MapPin } from 'lucide-react';
 import Navbar from '../../components/common/Navbar';
 import { useCart } from '../../context/cartContext';
@@ -9,11 +9,22 @@ import toast from 'react-hot-toast';
 import { formatPrice } from '../../utils/formatters';
 
 export default function Checkout() {
-  const { cartItems, cartTotal, clearCart } = useCart();
+  const { cartItems, cartTotal } = useCart();
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [isPlacing, setIsPlacing] = useState(false);
+  const [errors, setErrors] = useState({ success: true });
+
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+    inputRef.current.focus();
+  }, [errors])
 
   const handlePlaceOrder = async () => {
     if (!isLoggedIn) {
@@ -40,9 +51,9 @@ export default function Checkout() {
 
     if (result.success) {
       toast.success('Order placed successfully!');
-      clearCart();
       navigate('/order-success', { state: { orderId: result.data.id } });
     } else {
+      setErrors(result);
       toast.error(result.message || 'Failed to place order');
     }
   };
@@ -63,10 +74,11 @@ export default function Checkout() {
             <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-content-subtitle" size={18} />
             <input
               type="text"
+              ref={inputRef}
               value={deliveryAddress}
-              onChange={(e) => setDeliveryAddress(e.target.value)}
+              onChange={(e) => { setDeliveryAddress(e.target.value); setErrors({ success: true }); }}
               placeholder="Enter your full delivery address..."
-              className="w-full bg-ui-mainBg py-4 pl-12 pr-4 rounded-2xl text-sm outline-none border border-ui-border focus:border-brand-primary transition-all"
+              className={`w-full bg-ui-mainBg py-4 pl-12 pr-4 rounded-2xl text-sm outline-none border transition-all ${errors?.success ? 'border-brand-primary' : 'border-red-500'}`}
             />
           </div>
         </section>

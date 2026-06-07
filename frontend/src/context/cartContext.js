@@ -40,9 +40,19 @@ export const CartProvider = ({ children }) => {
     cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0)
     , [cartItems]);
 
-  const cartTotalTime = useMemo(() =>
-    cartItems.reduce((acc, item) => acc + (item.prepare_time * item.quantity), 0)
-    , [cartItems]);
+  // const cartTotalTime = useMemo(() =>
+  //   cartItems.reduce((acc, item) => acc + (item.prepare_time), 0)
+  //   , [cartItems]);
+
+  const cartTotalTime = useMemo(() => {
+    if (cartItems.length === 0) return 0;
+
+    return cartItems.reduce((acc, item) => {
+      const itemTotalTime = item.prepare_time + (item.quantity - 1);
+      return Math.max(acc, itemTotalTime);
+    }, 0);
+
+  }, [cartItems]);
 
   const value = useMemo(() => ({
     cartItems, addToCart, removeFromCart, clearCart, clearItemFromCart, cartTotal, cartCount, cartTotalTime

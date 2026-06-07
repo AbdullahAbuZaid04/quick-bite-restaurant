@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { Plus, Clock } from "lucide-react";
+import toast from "react-hot-toast";
 
 const ProductCard = memo(function ProductCard({ item, addToCart }) {
   return (
@@ -41,7 +42,10 @@ const ProductCard = memo(function ProductCard({ item, addToCart }) {
         </div>
 
         <button
-          onClick={() => addToCart({ ...item, quantity: 1 })}
+          onClick={() => {
+            addToCart({ ...item, quantity: 1 });
+            toast.success("Item added to cart");
+          }}
           className="bg-brand-primary text-white p-2.5 rounded-xl hover:bg-brand-hover transition-all active:scale-95 shadow-md shadow-brand-primary/10 flex items-center justify-center"
         >
           <Plus size={18} strokeWidth={2.5} />

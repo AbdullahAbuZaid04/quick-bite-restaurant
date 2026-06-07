@@ -42,10 +42,9 @@ export default function Cart() {
                   </div>
 
                   <div className="flex-1">
-                    <div className="flex justify-between items-start">
+                    <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h3 className="font-bold text-content-paragraph mb-1">{item.name}</h3>
-                        <p className="text-xs text-content-subtitle mb-3">Extra sauce, no onions</p>
+                        <h3 className="font-bold text-content-paragraph">{item.name}</h3>
                       </div>
                       <button onClick={() => clearItemFromCart(item)} className="text-content-subtitle hover:text-red-500 transition-colors duration-200 p-1">
                         <Trash2 size={18} />
