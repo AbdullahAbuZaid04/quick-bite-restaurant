@@ -1,5 +1,5 @@
 {
-  "short_name": "Quick Bite Restaurant",
+  "short_name": "Quick Bite",
   "name": "Quick Bite Restaurant",
   "icons": [
     {
@@ -10,6 +10,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#FF6B35",
+  "background_color": "#FCF9F8"
 }

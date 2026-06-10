@@ -1,5 +1,5 @@
 import Navbar from "../../components/common/Navbar";
-import pizzaImg from "../../assets/home.png";
+import pizzaWebp from "../../assets/home.webp";
 import { Link } from "react-router-dom";
 
 export default function Home() {
@@ -7,7 +7,7 @@ export default function Home() {
     <div className="min-h-screen bg-ui-mainBg">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-6 md:px-12 py-12 flex flex-col lg:flex-row items-center justify-between gap-12">
+      <main id="main-content" className="max-w-7xl mx-auto px-6 md:px-12 py-12 flex flex-col lg:flex-row items-center justify-between gap-12">
 
         <section className="flex-1 space-y-6 text-center lg:text-left">
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-content-paragraph tracking-tighter">
@@ -29,11 +29,16 @@ export default function Home() {
         </section>
 
         <section className="hidden lg:flex flex-1">
-          <img
-            src={pizzaImg}
-            alt="Delicious Pizza"
-            className="w-full h-full object-contain rotate-1 hover:-rotate-2 transition-transform duration-500"
-          />
+          <picture>
+            <source srcSet={pizzaWebp} type="image/webp" />
+            <img
+              src={pizzaWebp}
+              alt="Delicious Pizza"
+              width={600}
+              height={600}
+              className="w-full h-full object-contain rotate-1 hover:-rotate-2 transition-transform duration-500"
+            />
+          </picture>
         </section>
 
       </main>

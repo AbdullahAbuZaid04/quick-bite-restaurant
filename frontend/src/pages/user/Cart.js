@@ -13,9 +13,9 @@ export default function Cart() {
     <div className="min-h-screen bg-ui-mainBg">
       <Navbar />
 
-      <main className="max-w-4xl mx-auto px-4 md:px-6 py-8 md:py-12">
+      <main id="main-content" className="max-w-4xl mx-auto px-4 md:px-6 py-8 md:py-12">
         <section className="flex items-center gap-4 mb-8">
-          <button onClick={() => navigate(-1)} className="p-2 bg-ui-white rounded-xl border border-ui-border hover:bg-brand-primary transition-all duration-300 group">
+          <button onClick={() => navigate(-1)} aria-label="Go back" className="p-2 bg-ui-white rounded-xl border border-ui-border hover:bg-brand-primary transition-all duration-300 group">
             <ChevronLeft size={20} className="text-content-paragraph group-hover:text-white" />
           </button>
           <div>
@@ -38,7 +38,7 @@ export default function Cart() {
                 <div key={item.id} className="group relative flex items-center gap-4 p-4 rounded-2xl bg-ui-white border border-ui-border hover:border-brand-primary/50 transition-all">
 
                   <div className="relative overflow-hidden rounded-2xl w-24 h-24">
-                    <img src={item.image_url} alt={item.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+                    <img src={item.image_url} alt={item.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
                   </div>
 
                   <div className="flex-1">
@@ -46,18 +46,18 @@ export default function Cart() {
                       <div>
                         <h3 className="font-bold text-content-paragraph">{item.name}</h3>
                       </div>
-                      <button onClick={() => clearItemFromCart(item)} className="text-content-subtitle hover:text-red-500 transition-colors duration-200 p-1">
+                      <button onClick={() => clearItemFromCart(item)} aria-label={`Remove ${item.name} from cart`} className="text-content-subtitle hover:text-red-500 transition-colors duration-200 p-1">
                         <Trash2 size={18} />
                       </button>
                     </div>
 
                     <div className="flex justify-between items-center mt-auto">
                       <div className="flex items-center gap-3 bg-ui-mainBg border border-ui-border rounded-xl p-1">
-                        <button onClick={() => removeFromCart(item)} className="w-7 h-7 flex items-center justify-center bg-ui-white rounded-lg border border-ui-border text-content-paragraph hover:bg-brand-primary hover:text-ui-white transition-all cursor-pointer duration-300">
+                        <button onClick={() => removeFromCart(item)} aria-label={`Decrease quantity of ${item.name}`} className="w-7 h-7 flex items-center justify-center bg-ui-white rounded-lg border border-ui-border text-content-paragraph hover:bg-brand-primary hover:text-ui-white transition-all cursor-pointer duration-300">
                           {item.quantity === 1 ? <Trash2 size={14} /> : <Minus size={14} />}
                         </button>
-                        <span className="text-sm font-bold w-6 text-center text-content-paragraph">{item.quantity}</span>
-                        <button onClick={() => addToCart(item)} className="w-7 h-7 flex items-center justify-center bg-ui-white rounded-lg border border-ui-border text-content-paragraph hover:bg-brand-primary hover:text-ui-white transition-all cursor-pointer duration-300">
+                        <span className="text-sm font-bold w-6 text-center text-content-paragraph" aria-live="polite" aria-atomic="true">{item.quantity}</span>
+                        <button onClick={() => addToCart(item)} aria-label={`Increase quantity of ${item.name}`} className="w-7 h-7 flex items-center justify-center bg-ui-white rounded-lg border border-ui-border text-content-paragraph hover:bg-brand-primary hover:text-ui-white transition-all cursor-pointer duration-300">
                           <Plus size={14} />
                         </button>
                       </div>

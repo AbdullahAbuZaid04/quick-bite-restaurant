@@ -57,7 +57,7 @@ export default function Menu() {
     <div className="min-h-screen bg-ui-mainBg pb-20">
       <Navbar />
 
-      <main>
+      <main id="main-content">
         <section className="max-w-7xl mx-auto px-6 md:px-10 mt-8 md:mt-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div className="max-w-2xl">
             <h1 className="text-4xl md:text-5xl font-extrabold text-content-paragraph mb-3 tracking-tight">
@@ -74,6 +74,7 @@ export default function Menu() {
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               placeholder="Search your cravings..."
+              aria-label="Search menu items"
               className="w-full bg-ui-card py-4 pl-12 pr-4 rounded-2xl text-sm outline-none border border-ui-border focus:border-brand-primary transition-all"
             />
           </div>

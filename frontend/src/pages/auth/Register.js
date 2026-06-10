@@ -1,6 +1,6 @@
 import { ArrowRight, User, Mail, Lock, EyeOff, Eye } from "lucide-react";
 import Navbar from "../../components/common/Navbar";
-import img from "../../assets/auth.png";
+import authWebp from "../../assets/auth.webp";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "../../hooks/useForm";
 import { useAuth } from "../../context/authContext";
@@ -42,7 +42,7 @@ export default function Register() {
     <div className="min-h-screen bg-ui-mainBg">
       <Navbar />
 
-      <main className="flex flex-1 justify-center items-center overflow-hidden p-4">
+      <main id="main-content" className="flex flex-1 justify-center items-center overflow-hidden p-4">
         <section className="flex bg-ui-white rounded-2xl overflow-hidden max-w-5xl w-full flex-col md:flex-row min-h-[600px]">
 
           <div className="p-8  w-full md:w-1/2 flex flex-col justify-center bg-ui-white">
@@ -113,7 +113,7 @@ export default function Register() {
                     value={formData.password}
                     placeholder="••••••••"
                   />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-content-subtitle hover:text-brand-primary transition-colors">
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Hide password" : "Show password"} className="absolute right-4 top-1/2 -translate-y-1/2 text-content-subtitle hover:text-brand-primary transition-colors">
                     {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                   </button>
                 </div>
@@ -145,8 +145,11 @@ export default function Register() {
 
           <div className="hidden md:block w-1/2">
             <img
-              src={img}
+              src={authWebp}
               alt="Culinary experience"
+              loading="lazy"
+              width={600}
+              height={600}
               className="w-full h-full object-cover"
             />
           </div>
