@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { X, ChevronDown } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function ProductModal({
   isOpen,
@@ -57,6 +58,8 @@ export default function ProductModal({
       } else {
         await onSubmit(formData);
       }
+    } catch (error) {
+      toast.error(error.message || 'An unexpected error occurred');
     } finally {
       setIsSubmitting(false);
     }

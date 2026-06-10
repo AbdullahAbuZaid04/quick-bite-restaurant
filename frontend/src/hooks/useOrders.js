@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { getAllOrdersApi, updateOrderStatusApi, payOrderApi, markPaymentPaidApi, getOrderPaymentsApi } from "../api/orderService";
 import toast from 'react-hot-toast';
 
@@ -10,13 +10,16 @@ export function useOrders(limit = 20) {
   const [updatingId, setUpdatingId] = useState(null);
   const [ordersError, setOrdersError] = useState(null);
   const [confirmingPaymentId, setConfirmingPaymentId] = useState(null);
+  const fetchIdRef = useRef(0);
 
   const fetchOrders = useCallback(async (page = 1) => {
+    const fetchId = ++fetchIdRef.current;
     setIsLoading(true);
     setOrdersError(null);
     try {
       const offset = (page - 1) * limit;
       const result = await getAllOrdersApi({ limit, offset });
+      if (fetchId !== fetchIdRef.current) return;
       if (result.success) {
         setOrders(result.data || []);
         setMeta(result.meta || {});
@@ -24,10 +27,13 @@ export function useOrders(limit = 20) {
         setOrdersError(result.message || 'Failed to load orders');
       }
     } catch (error) {
-      console.error('Failed to fetch orders:', error);
-      setOrdersError(error.message);
+      if (fetchId === fetchIdRef.current) {
+        setOrdersError(error.message);
+      }
     } finally {
-      setIsLoading(false);
+      if (fetchId === fetchIdRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [limit]);
 
@@ -73,6 +79,7 @@ export function useOrders(limit = 20) {
         });
         if (!createRes.success) {
           toast.error(createRes.message || 'Failed to create payment');
+          setConfirmingPaymentId(null);
           return;
         }
         paymentId = createRes.data.id;
@@ -84,6 +91,7 @@ export function useOrders(limit = 20) {
         fetchOrders(currentPage);
       } else {
         toast.error(markRes.message || 'Failed to confirm payment');
+        fetchOrders(currentPage);
       }
     } catch (error) {
       toast.error(error.message || 'An error occurred');

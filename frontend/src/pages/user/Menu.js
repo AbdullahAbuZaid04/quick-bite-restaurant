@@ -1,57 +1,36 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import Navbar from '../../components/common/Navbar';
+import Pagination from '../../components/common/Pagination';
 import { useCart } from '../../context/cartContext';
-import { getAllMenu } from '../../api/menuService';
-import { getAllCategories } from '../../api/categoryService';
+import { useMenu } from '../../hooks/useMenu';
 import ProductCard from '../../components/user/ProductCard';
+
+const PAGE_SIZE = 12;
 
 export default function Menu() {
   const { addToCart } = useCart();
   const [activeTab, setActiveTab] = useState("All");
   const [searchText, setSearchText] = useState("");
-  const [menuProducts, setMenuProducts] = useState([]);
-  const [allCategories, setAllCategories] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { products: menuProducts, categories: rawCategories, isLoadingProducts: isLoadingMenu, isLoadingCategories, currentPage, setCurrentPage, meta, menuError } = useMenu(PAGE_SIZE, searchText, activeTab);
+  const totalPages = meta.total ? Math.ceil(meta.total / (meta.limit || PAGE_SIZE)) : 1;
+
+  const allCategories = useMemo(() => {
+    if (isLoadingCategories) return [];
+    return [{ id: 0, name: "All" }, ...rawCategories];
+  }, [rawCategories, isLoadingCategories]);
 
   useEffect(() => {
-    const fetchMenu = async () => {
-      try {
-        const response = await getAllMenu();
-        setMenuProducts(Array.isArray(response.data) ? response.data : []);
-      } catch (err) {
-        console.error("Failed to fetch menu", err);
-        setMenuProducts([]);
-      }
-    };
-    fetchMenu();
+    window.scrollTo(0, 0);
+  }, [currentPage]);
 
-    const fetchCategories = async () => {
-      try {
-        const response = await getAllCategories();
-        const categories = Array.isArray(response.data) ? response.data : [];
-        setAllCategories([{ id: 0, name: "All" }, ...categories]);
-      } catch (err) {
-        console.error("Failed to fetch categories", err);
-        setAllCategories([{ id: 0, name: "All" }]);
-      }
-    };
-    fetchCategories();
-  }, []);
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
 
-  useEffect(() => {
-    if (!isLoading) return;
-    if (menuProducts.length > 0 || allCategories.length > 0) {
-      setIsLoading(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [menuProducts, allCategories]);
-
-  const filteredProducts = useMemo(() =>
-    activeTab === "All"
-      ? menuProducts.filter(p => p.name.toLowerCase().includes(searchText.toLowerCase()))
-      : menuProducts.filter(p => p.category_name === activeTab && p.name.toLowerCase().includes(searchText.toLowerCase()))
-  , [menuProducts, activeTab, searchText]);
+  const handleSearchChange = (e) => {
+    setSearchText(e.target.value);
+  };
 
   return (
     <div className="min-h-screen bg-ui-mainBg pb-20">
@@ -72,7 +51,7 @@ export default function Menu() {
             <input
               type="text"
               value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
+              onChange={handleSearchChange}
               placeholder="Search your cravings..."
               aria-label="Search menu items"
               className="w-full bg-ui-card py-4 pl-12 pr-4 rounded-2xl text-sm outline-none border border-ui-border focus:border-brand-primary transition-all"
@@ -80,11 +59,13 @@ export default function Menu() {
           </div>
         </section>
 
-        <section className="max-w-7xl mx-auto px-4 md:px-10 mt-8 md:mt-10 flex gap-4 overflow-x-auto pb-4">
-          {allCategories.map((cat) => (
+        <section className="max-w-7xl mx-auto px-4 md:px-10 mt-8 md:mt-10 flex gap-4 overflow-x-auto pb-4" role="tablist" aria-label="Menu categories">
+          {!isLoadingCategories && allCategories.map((cat) => (
             <button
               key={cat.id}
-              onClick={() => setActiveTab(cat.name)}
+              role="tab"
+              aria-selected={activeTab === cat.name}
+              onClick={() => handleTabChange(cat.name)}
               className={`px-8 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 border border-ui-border ${activeTab === cat.name
                 ? "bg-brand-primary text-white"
                 : "bg-ui-white text-content-paragraph hover:bg-brand-light hover:text-brand-primary"
@@ -97,7 +78,13 @@ export default function Menu() {
 
         {/* Products Grid */}
         <section className="max-w-7xl mx-auto px-6 md:px-10 mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {isLoading ? (
+          {menuError ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-red-500 font-bold bg-red-50 px-6 py-3 rounded-xl border border-red-200">
+                {menuError}
+              </p>
+            </div>
+          ) : isLoadingMenu ? (
             Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="bg-ui-white p-3 rounded-2xl border border-ui-border animate-pulse">
                 <div className="rounded-xl mb-3 aspect-[4/3] bg-gray-200" />
@@ -116,8 +103,8 @@ export default function Menu() {
                 </div>
               </div>
             ))
-          ) : filteredProducts.length > 0 ? (
-            filteredProducts.map((item) => (
+          ) : menuProducts.length > 0 ? (
+            menuProducts.map((item) => (
               <ProductCard key={item.id} item={item} addToCart={addToCart} />
             ))
           ) : (
@@ -126,6 +113,19 @@ export default function Menu() {
             </div>
           )}
         </section>
+
+        {menuProducts.length > 0 && (
+          <section className="max-w-7xl mx-auto px-6 md:px-10 mt-8">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={meta.total || menuProducts.length}
+              itemsPerPage={meta.limit || PAGE_SIZE}
+              itemName="items"
+              onPageChange={setCurrentPage}
+            />
+          </section>
+        )}
       </main>
     </div>
   );

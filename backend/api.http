@@ -48,8 +48,8 @@ POST {{base}}/auth/login
 Content-Type: application/json
 
 {
-  "email": "admin@quickbite.local",
-  "password": "Admin@12345"
+  "email": "admin@quickbite.com",
+  "password": "Admin12345"
 }
 
 ### Get my profile

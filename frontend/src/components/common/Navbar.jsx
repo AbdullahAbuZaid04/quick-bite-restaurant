@@ -51,6 +51,13 @@ export default function Navbar() {
               Track Order
             </Link>
           </li>
+          {(user?.role === 'admin' || user?.role === 'manager') && (
+            <li>
+              <Link to="/dashboard" className="text-content-paragraph text-sm font-semibold hover:text-brand-hover transition-colors">
+                Dashboard
+              </Link>
+            </li>
+          )}
         </ul>
       </nav>
 
@@ -99,11 +106,11 @@ export default function Navbar() {
         </div>
 
         {isLoggedIn && (
-          <p className="flex flex-col text-gray-600 text-sm font-semibold">
-            Hello <span className="text-orange-500">{user?.name || "User"}</span>
+          <p className="flex flex-col text-content-paragraph text-sm font-semibold">
+            Hello <span className="text-brand-primary">{user?.name || "User"}</span>
           </p>
         )}
-        <button onClick={toggleMenu} className="text-gray-600" aria-expanded={isMenuOpen} aria-label="Toggle navigation menu">
+        <button onClick={toggleMenu} className="text-content-paragraph" aria-expanded={isMenuOpen} aria-label="Toggle navigation menu">
           <Menu size={26} />
         </button>
         <div id="mobile-menu" className={isMenuOpen ? "absolute top-20 left-0 w-full bg-white shadow-lg p-6 transition-all duration-300 ease-in-out transform origin-top scale-y-100" : "absolute top-20 left-0 w-full bg-white shadow-lg p-6 transition-all duration-300 ease-in-out transform origin-top scale-y-0"}>
@@ -123,6 +130,13 @@ export default function Navbar() {
                 Track Order
               </Link>
             </li>
+            {(user?.role === 'admin' || user?.role === 'manager') && (
+              <li>
+                <Link to="/dashboard" className="text-content-paragraph text-sm font-semibold hover:text-brand-hover transition-colors">
+                  Dashboard
+                </Link>
+              </li>
+            )}
             <li className="border-t border-ui-border pt-4 mt-2">
               {isLoggedIn ? (
                 <button

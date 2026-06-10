@@ -38,7 +38,7 @@ export default function Cart() {
                 <div key={item.id} className="group relative flex items-center gap-4 p-4 rounded-2xl bg-ui-white border border-ui-border hover:border-brand-primary/50 transition-all">
 
                   <div className="relative overflow-hidden rounded-2xl w-24 h-24">
-                    <img src={item.image_url} alt={item.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+                    <img src={item.image_url} alt={item.name} loading="lazy" onError={(e) => { e.target.alt = 'Image unavailable'; }} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
                   </div>
 
                   <div className="flex-1">
@@ -96,12 +96,15 @@ export default function Cart() {
                 </div>
               </div>
 
-              {cartItems.length > 0 &&
-                <button onClick={() => navigate('/checkout')} className="w-full bg-brand-primary text-ui-white py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 hover:bg-brand-hover transition-all active:scale-95 group disabled:bg-brand-disabled">
-                  Checkout Now
-                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                </button>
-              }
+              <button
+                onClick={() => navigate('/checkout')}
+                disabled={cartItems.length === 0}
+                aria-disabled={cartItems.length === 0}
+                className="w-full bg-brand-primary text-ui-white py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 hover:bg-brand-hover transition-all active:scale-95 group disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+              >
+                Checkout Now
+                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+              </button>
             </div>
           </section>
         </section>

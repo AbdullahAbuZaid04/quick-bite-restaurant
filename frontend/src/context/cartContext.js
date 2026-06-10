@@ -40,10 +40,6 @@ export const CartProvider = ({ children }) => {
     cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0)
     , [cartItems]);
 
-  // const cartTotalTime = useMemo(() =>
-  //   cartItems.reduce((acc, item) => acc + (item.prepare_time), 0)
-  //   , [cartItems]);
-
   const cartTotalTime = useMemo(() => {
     if (cartItems.length === 0) return 0;
 

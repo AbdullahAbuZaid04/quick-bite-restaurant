@@ -2,7 +2,8 @@ import { apiClient } from './apiClient';
 
 export const getAllUsersApi = async (page = 1, limit = 10) => {
   try {
-    const response = await apiClient(`/api/users?page=${page}&limit=${limit}`, {
+    const offset = (page - 1) * limit;
+    const response = await apiClient(`/api/users?offset=${offset}&limit=${limit}`, {
       method: 'GET',
     });
 

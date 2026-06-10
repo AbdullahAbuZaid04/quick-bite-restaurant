@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createMenuItem, getAllMenu, updateMenuItem, deleteMenuItem } from "../api/menuService";
 import { getAllCategories } from "../api/categoryService";
 import toast from 'react-hot-toast';
 
-export function useMenu() {
+export function useMenu(pageSize = 10, searchText = '', activeTab = 'All') {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isProductDeleteModalOpen, setIsProductDeleteModalOpen] = useState(false);
@@ -14,43 +14,69 @@ export function useMenu() {
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [menuError, setMenuError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [meta, setMeta] = useState({});
+  const pageRef = useRef(1);
 
-  const fetchProducts = async () => {
+  const effectiveCategories = categories;
+
+  const fetchProducts = useCallback(async (page = 1) => {
     setMenuError(null);
     setIsLoadingProducts(true);
     try {
-      const result = await getAllMenu();
+      const offset = (page - 1) * pageSize;
+      const params = { limit: pageSize, offset };
+      if (searchText) params.q = searchText;
+      if (activeTab !== 'All') {
+        const cat = effectiveCategories.find(c => c.name === activeTab);
+        if (cat) params.category_id = cat.id;
+      }
+      const result = await getAllMenu(params);
       if (result.success) {
         setProducts(result.data || []);
+        setMeta(result.meta || {});
       } else {
         setMenuError(result.message || 'Failed to load products');
       }
     } catch (error) {
-      console.error('Failed to fetch products:', error);
       setMenuError(error.message);
     } finally {
       setIsLoadingProducts(false);
     }
-  };
+  }, [pageSize, searchText, activeTab, effectiveCategories]);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     setIsLoadingCategories(true);
     try {
       const result = await getAllCategories();
       if (result.success) {
         setCategories(result.data || []);
+      } else {
+        setMenuError(result.message || 'Failed to load categories');
       }
     } catch (error) {
-      console.error('Failed to fetch categories:', error);
+      setMenuError(error.message);
     } finally {
       setIsLoadingCategories(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchProducts();
+    setCurrentPage(1);
+    pageRef.current = 1;
+    fetchProducts(1);
+  }, [searchText, activeTab, fetchProducts]);
+
+  useEffect(() => {
+    if (currentPage !== pageRef.current) {
+      pageRef.current = currentPage;
+      fetchProducts(currentPage);
+    }
+  }, [currentPage, fetchProducts]);
+
+  useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
   const handleAddProduct = async (newProduct) => {
     try {
@@ -63,7 +89,6 @@ export function useMenu() {
         toast.error(result.message || 'Unknown error occurred');
       }
     } catch (error) {
-      console.error('Failed to add product:', error);
       toast.error(error.message);
     }
   };
@@ -85,7 +110,6 @@ export function useMenu() {
         toast.error(result.message || 'Failed to update product');
       }
     } catch (error) {
-      console.error('Failed to update product:', error);
       toast.error(error.message);
     }
   };
@@ -107,7 +131,6 @@ export function useMenu() {
         toast.error(result.message || 'Failed to delete product');
       }
     } catch (error) {
-      console.error('Failed to delete product:', error);
       toast.error(error.message || 'Failed to delete product');
     }
   };
@@ -127,6 +150,9 @@ export function useMenu() {
     isLoadingProducts,
     isLoadingCategories,
     menuError,
+    currentPage,
+    setCurrentPage,
+    meta,
     handleAddProduct,
     handleClickEdit,
     handleEdit,

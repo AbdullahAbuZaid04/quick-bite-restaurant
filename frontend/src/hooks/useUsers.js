@@ -6,6 +6,7 @@ export function useUsers() {
   const [isUserDeleteModalOpen, setIsUserDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [users, setUsers] = useState([]);
+  const [meta, setMeta] = useState({});
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const [usersError, setUsersError] = useState(null);
 
@@ -15,14 +16,16 @@ export function useUsers() {
     try {
       const result = await getAllUsersApi(page);
       if (result.success) {
-        const data = result.data || [];
-        data.meta = result.meta || {};
-        setUsers(data);
+        setUsers(result.data || []);
+        setMeta(result.meta || {});
       } else {
+        setUsers([]);
+        setMeta({});
         setUsersError(result.message || 'Failed to load users');
       }
     } catch (error) {
-      console.error('Failed to fetch users:', error);
+      setUsers([]);
+      setMeta({});
       setUsersError(error.message);
     } finally {
       setIsLoadingUsers(false);
@@ -41,18 +44,17 @@ export function useUsers() {
   const handleDeleteUser = async (id) => {
     try {
       const result = await deleteUserApi(id);
-      if (result.success !== false) {
+      if (result.success) {
         toast.success("User deleted successfully");
         setUsers(prevUsers => prevUsers.filter(u => u.id !== id));
+        setMeta(prev => ({ ...prev, total: Math.max(0, (prev.total || 1) - 1) }));
+        setIsUserDeleteModalOpen(false);
+        setSelectedUser(null);
       } else {
         toast.error(result.message || 'Failed to delete user');
       }
     } catch (error) {
-      console.error('Failed to delete user:', error);
       toast.error(error.message || 'Failed to delete user');
-    } finally {
-      setIsUserDeleteModalOpen(false);
-      setSelectedUser(null);
     }
   };
 
@@ -61,6 +63,7 @@ export function useUsers() {
     setIsUserDeleteModalOpen,
     selectedUser,
     users,
+    meta,
     isLoadingUsers,
     usersError,
     handleClickDeleteUser,

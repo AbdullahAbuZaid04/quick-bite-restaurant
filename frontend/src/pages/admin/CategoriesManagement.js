@@ -22,10 +22,9 @@ export default function CategoriesManagement() {
 
       <div className="bg-ui-white rounded-2xl border border-ui-border overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left min-w-[600px]">
+          <table className="w-full text-left min-w-[400px]">
             <thead className="bg-brand-primary text-white text-center text-sm font-bold uppercase">
               <tr>
-                <th className="py-5 px-6">ID</th>
                 <th className="py-5 px-6">Name</th>
                 <th className="py-5 px-6">Actions</th>
               </tr>
@@ -33,7 +32,7 @@ export default function CategoriesManagement() {
             <tbody>
               {isLoadingCategories ? (
                 <tr>
-                  <td colSpan={3} className="text-center py-16">
+                  <td colSpan={2} className="text-center py-16">
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-8 h-8 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
                       <span className="text-gray-400 text-sm font-medium">Loading categories...</span>
@@ -42,7 +41,7 @@ export default function CategoriesManagement() {
                 </tr>
               ) : categoriesError ? (
                 <tr>
-                  <td colSpan={3} className="text-center py-16">
+                  <td colSpan={2} className="text-center py-16">
                     <div className="flex flex-col items-center justify-center gap-3">
                       <div className="bg-red-50 p-3 rounded-full">
                         <AlertCircle className="w-8 h-8 text-red-500" />
@@ -60,15 +59,14 @@ export default function CategoriesManagement() {
                 </tr>
               ) : categories.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="text-center py-16 text-gray-400 text-sm font-medium">
+                  <td colSpan={2} className="text-center py-16 text-gray-400 text-sm font-medium">
                     No categories found
                   </td>
                 </tr>
               ) : (
                 categories.map((cat) => (
-                  <tr key={cat.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors text-center text-sm font-medium text-gray-600">
-                    <td className="py-4 px-6">{cat.id}</td>
-                    <td className="py-4 px-6 font-bold text-gray-800">{cat.name}</td>
+                  <tr key={cat.id} className="border-b border-ui-border hover:bg-ui-mainBg transition-colors text-center text-sm">
+                    <td className="py-4 px-6 font-bold text-content-paragraph">{cat.name}</td>
                     <td className="py-4 px-6">
                       <div className="flex items-center justify-center gap-2">
                         <button

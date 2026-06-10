@@ -9,15 +9,14 @@ const TABLE_HEADERS = ["User Name", "Email Address", "Role", "Actions"];
 
 export default function UsersManagement() {
   const [currentPage, setCurrentPage] = useState(1);
-  const { isUserDeleteModalOpen, setIsUserDeleteModalOpen, selectedUser, users, usersError, handleDeleteUser, handleClickDeleteUser, isLoadingUsers, refetchUsers } = useUsers();
+  const { isUserDeleteModalOpen, setIsUserDeleteModalOpen, selectedUser, users, meta, usersError, handleDeleteUser, handleClickDeleteUser, isLoadingUsers, refetchUsers } = useUsers();
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
     refetchUsers(page);
   };
 
-  const meta = users?.meta || {};
-  const totalPages = meta.total ? Math.ceil(meta.total / (meta.limit || 10)) : 1;
+  const totalPages = meta.total ? Math.ceil(meta.total / (meta.limit || 10)) : Math.max(1, Math.ceil(users.length / (meta.limit || 10)));
 
   return (
     <>
@@ -96,7 +95,7 @@ export default function UsersManagement() {
             currentPage={currentPage}
             totalPages={totalPages}
             totalItems={meta.total || users.length}
-            itemsPerPage={meta.limit || users.length}
+            itemsPerPage={meta.limit || 10}
             itemName="users"
             onPageChange={handlePageChange}
           />

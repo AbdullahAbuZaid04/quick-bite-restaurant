@@ -5,7 +5,7 @@ import Pagination from "../../components/common/Pagination";
 import { useOrders } from "../../hooks/useOrders";
 
 import { STATUS_STYLES, STATUS_MAP } from "../../utils/statusColors";
-import { formatOrderId, formatPrice } from "../../utils/formatters";
+import { formatOrderId, formatPrice,formatDate } from "../../utils/formatters";
 
 const TABLE_HEADERS = ["Order ID", "Customer", "Amount", "Status", "Date", "Actions"];
 
@@ -125,7 +125,7 @@ export default function OrdersManagement() {
                     Amount={formatPrice(order.total_amount)}
                     Status={STATUS_MAP[order.status] || order.status}
                     statusKey={order.status}
-                    Date={order.created_at}
+                    Date={formatDate(order.created_at)}
                     updating={updatingId === order.id}
                     onStatusChange={(newStatus) => handleStatusChange(order.id, newStatus)}
                     isConfirmingPayment={confirmingPaymentId === order.id}

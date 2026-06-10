@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Check, Home, ArrowRight } from 'lucide-react';
 import Navbar from '../../components/common/Navbar';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
@@ -8,19 +9,47 @@ export default function OrderSuccess() {
   const navigate = useNavigate();
   const location = useLocation();
   const { cartTotalTime, clearCart, cartItems, cartTotal } = useCart();
+  const isReady = useRef(false);
+  const clearCartRef = useRef(clearCart);
+  clearCartRef.current = clearCart;
 
   const orderId = location.state?.orderId;
 
-  // Guard: must arrive via navigation with a valid orderId
+  useEffect(() => {
+    if (!orderId) return;
+
+    const id = setTimeout(() => { isReady.current = true; }, 0);
+
+    return () => {
+      clearTimeout(id);
+      if (isReady.current) {
+        clearCartRef.current();
+        sessionStorage.removeItem('cart');
+      }
+    };
+  }, [orderId]);
+
   if (!orderId) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/menu" replace />;
   }
 
+  const handleGoHome = () => {
+    clearCart();
+    sessionStorage.removeItem('cart');
+    navigate("/", { replace: true });
+  };
+
+  const handleTrackOrder = () => {
+    clearCart();
+    sessionStorage.removeItem('cart');
+    navigate("/order-tracking", { replace: true });
+  };
+
   return (
-    <div className="min-h-screen bg-ui-mainBg pb-20">
+    <div className="min-h-screen bg-ui-mainBg">
       <Navbar />
 
-      <main className="max-w-xl mx-auto px-4 md:px-6 py-12 md:py-20 flex flex-col items-center text-center">
+      <main id="main-content" className="max-w-xl mx-auto px-4 md:px-6 py-8 flex flex-col items-center text-center">
 
         <div className="mb-8">
           <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center">
@@ -30,19 +59,16 @@ export default function OrderSuccess() {
           </div>
         </div>
 
-        {/* Text Header */}
-        <h1 className="text-4xl font-bold text-content-paragraph mb-3">
+        <h1 className="text-4xl font-bold text-content-paragraph mb-3" aria-live="polite">
           Order Placed!
         </h1>
         <p className="text-content-subtitle text-sm">
           Your food is being prepared with love. Order <span className="text-brand-primary font-bold">{formatOrderId(orderId)}</span> is on the way.
         </p>
 
-        {/* Info Card */}
         <div className="w-full mt-12 bg-ui-white rounded-2xl border border-ui-border overflow-hidden">
 
-          {/* Top Row: Total & Delivery */}
-          <div className="flex justify-between px-8 py-8 border-b border-ui-mainBg bg-gray-50/50">
+          <div className="flex justify-between px-8 py-8 border-b border-ui-mainBg bg-ui-mainBg">
             <div className="text-left">
               <span className="text-[10px] font-bold text-content-paragraph uppercase tracking-[0.2em] block mb-1">Total Paid</span>
               <span className="text-2xl font-black text-brand-primary">{formatPrice(cartTotal)}</span>
@@ -53,7 +79,6 @@ export default function OrderSuccess() {
             </div>
           </div>
 
-          {/* Items List */}
           <div className="p-6 space-y-3">
             <h3 className="text-[10px] font-bold text-content-subtitle uppercase tracking-widest text-left px-2 mb-4">Order Details</h3>
             {cartItems.map((item) => (
@@ -78,14 +103,13 @@ export default function OrderSuccess() {
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 mt-12">
-          <button onClick={() => { clearCart(); navigate("/") }} className="flex items-center justify-center gap-2 bg-ui-white text-content-paragraph border-2 border-content-paragraph px-10 py-4 rounded-2xl font-bold hover:bg-content-paragraph hover:text-white transition-all active:scale-95">
+          <button onClick={handleGoHome} className="flex items-center justify-center gap-2 bg-ui-white text-content-paragraph border-2 border-content-paragraph px-10 py-4 rounded-2xl font-bold hover:bg-content-paragraph hover:text-white transition-all active:scale-95">
             <Home size={18} />
             Back to Home
           </button>
 
-          <button onClick={() => { clearCart(); navigate("/order-tracking") }} className="flex items-center justify-center gap-2 bg-brand-primary text-ui-white py-5 rounded-2xl font-bold text-sm hover:bg-brand-hover transition-all transform active:scale-95 group">
+          <button onClick={handleTrackOrder} className="flex items-center justify-center gap-2 bg-brand-primary text-ui-white py-5 rounded-2xl font-bold text-sm hover:bg-brand-hover transition-all transform active:scale-95 group">
             Track My Order
             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
           </button>

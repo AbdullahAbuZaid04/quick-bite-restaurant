@@ -24,7 +24,7 @@ export default function Dashboard() {
     {
       icon: <LayoutDashboard size={20} />,
       title: "Total Revenue",
-      number: Math.round(revenue.total || 0),
+      number: revenue.total || 0,
       color: "purple",
     },
     {
@@ -127,7 +127,7 @@ export default function Dashboard() {
 
           <section className="flex-1">
             <h2 className="text-xl md:text-2xl font-bold text-content-paragraph mb-6">Quick Actions</h2>
-            <button onClick={() => navigate("/manage-menu")} className="w-full h-32 bg-brand-primary text-white rounded-2xl flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:bg-brand-hover">
+            <button onClick={() => navigate("/manage-menu", { state: { openAddModal: true } })} className="w-full h-32 bg-brand-primary text-white rounded-2xl flex flex-col items-center justify-center gap-3 transition-all duration-300 hover:bg-brand-hover">
               <div className="bg-ui-white/20 p-3 rounded-2xl">
                 <Plus size={28} />
               </div>

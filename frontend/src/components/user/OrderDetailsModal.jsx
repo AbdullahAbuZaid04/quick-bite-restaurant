@@ -71,7 +71,7 @@ export default function OrderDetailsModal({ isOpen, onClose, orderId }) {
               {order.items && order.items.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
-                    <thead className="bg-gray-50 text-gray-500 text-xs font-bold uppercase">
+                    <thead className="bg-brand-primary text-white text-xs font-bold uppercase">
                       <tr>
                         <th className="py-3 px-4 rounded-tl-xl">Item</th>
                         <th className="py-3 px-4 text-center">Qty</th>
@@ -85,7 +85,7 @@ export default function OrderDetailsModal({ isOpen, onClose, orderId }) {
                           <td className="py-3 px-4 font-medium text-gray-800">{item.menu_item_name}</td>
                           <td className="py-3 px-4 text-center text-gray-600">{item.quantity}</td>
                           <td className="py-3 px-4 text-right text-gray-600">{formatPrice(item.unit_price)}</td>
-                          <td className="py-3 px-4 text-right font-bold text-gray-800">{formatPrice(item.subtotal)}</td>
+                          <td className="py-3 px-4 text-right font-bold text-brand-primary">{formatPrice(item.subtotal)}</td>
                         </tr>
                       ))}
                     </tbody>
