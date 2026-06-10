@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createMenuItem, getAllMenu, updateMenuItem, deleteMenuItem } from "../api/menuService";
 import { getAllCategories } from "../api/categoryService";
 import toast from 'react-hot-toast';
 
-export function useMenu() {
+export function useMenu(pageSize = 10) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isProductDeleteModalOpen, setIsProductDeleteModalOpen] = useState(false);
@@ -14,14 +14,18 @@ export function useMenu() {
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
   const [menuError, setMenuError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [meta, setMeta] = useState({});
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async (page = 1) => {
     setMenuError(null);
     setIsLoadingProducts(true);
     try {
-      const result = await getAllMenu();
+      const offset = (page - 1) * pageSize;
+      const result = await getAllMenu({ limit: pageSize, offset });
       if (result.success) {
         setProducts(result.data || []);
+        setMeta(result.meta || {});
       } else {
         setMenuError(result.message || 'Failed to load products');
       }
@@ -30,9 +34,9 @@ export function useMenu() {
     } finally {
       setIsLoadingProducts(false);
     }
-  };
+  }, [pageSize]);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     setIsLoadingCategories(true);
     try {
       const result = await getAllCategories();
@@ -46,12 +50,15 @@ export function useMenu() {
     } finally {
       setIsLoadingCategories(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(currentPage);
+  }, [currentPage, fetchProducts]);
+
+  useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
   const handleAddProduct = async (newProduct) => {
     try {
@@ -125,6 +132,9 @@ export function useMenu() {
     isLoadingProducts,
     isLoadingCategories,
     menuError,
+    currentPage,
+    setCurrentPage,
+    meta,
     handleAddProduct,
     handleClickEdit,
     handleEdit,

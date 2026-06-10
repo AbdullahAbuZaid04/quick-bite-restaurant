@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Plus, AlertCircle, RefreshCw } from "lucide-react";
 import MenuRow from "../../components/admin/MenuRow";
@@ -11,7 +11,7 @@ import { formatPrice } from "../../utils/formatters";
 const TABLE_HEADERS = ["Product Image", "Product Name", "Category", "Price", "Prep Time", "Action"];
 
 export default function MenuManagement() {
-  const { isAddModalOpen, categories, setIsAddModalOpen, isEditModalOpen, setIsEditModalOpen, isProductDeleteModalOpen, setIsProductDeleteModalOpen, selectedProduct, isLoadingProducts, isLoadingCategories, products, menuError, refetchProducts, handleAddProduct, handleClickEdit, handleEdit, handleClickDeleteProduct, handleDeleteProduct } = useMenu();
+  const { isAddModalOpen, categories, setIsAddModalOpen, isEditModalOpen, setIsEditModalOpen, isProductDeleteModalOpen, setIsProductDeleteModalOpen, selectedProduct, isLoadingProducts, isLoadingCategories, products, menuError, currentPage, setCurrentPage, meta, refetchProducts, handleAddProduct, handleClickEdit, handleEdit, handleClickDeleteProduct, handleDeleteProduct } = useMenu();
   const location = useLocation();
 
   useEffect(() => {
@@ -22,14 +22,9 @@ export default function MenuManagement() {
   }, [location.state, setIsAddModalOpen]);
 
   const productList = Array.isArray(products) ? products : [];
-
-  const [currentPage, setCurrentPage] = useState(1);
-
-  useEffect(() => { setCurrentPage(1); }, [products.length]);
+  const totalItems = meta?.total || productList.length;
   const pageSize = 10;
-  const totalPages = Math.max(1, Math.ceil(productList.length / pageSize));
-
-  const paginatedProducts = productList.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
 
   return (
     <div>
@@ -96,7 +91,7 @@ export default function MenuManagement() {
                   </td>
                 </tr>
               ) : (
-                paginatedProducts.map((item, index) => (
+                productList.map((item, index) => (
                   <MenuRow
                     key={item.id || index}
                     image={item.image_url}
@@ -113,11 +108,11 @@ export default function MenuManagement() {
           </table>
         </div>
 
-        {productList.length > 0 && !isLoadingProducts && (
+        {totalItems > 0 && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            totalItems={productList.length}
+            totalItems={totalItems}
             itemsPerPage={pageSize}
             itemName="products"
             onPageChange={setCurrentPage}

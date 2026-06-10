@@ -6,6 +6,7 @@ export function useUsers() {
   const [isUserDeleteModalOpen, setIsUserDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [users, setUsers] = useState([]);
+  const [meta, setMeta] = useState({});
   const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const [usersError, setUsersError] = useState(null);
 
@@ -15,13 +16,16 @@ export function useUsers() {
     try {
       const result = await getAllUsersApi(page);
       if (result.success) {
-        const data = result.data || [];
-        data.meta = result.meta || {};
-        setUsers(data);
+        setUsers(result.data || []);
+        setMeta(result.meta || {});
       } else {
+        setUsers([]);
+        setMeta({});
         setUsersError(result.message || 'Failed to load users');
       }
     } catch (error) {
+      setUsers([]);
+      setMeta({});
       setUsersError(error.message);
     } finally {
       setIsLoadingUsers(false);
@@ -58,6 +62,7 @@ export function useUsers() {
     setIsUserDeleteModalOpen,
     selectedUser,
     users,
+    meta,
     isLoadingUsers,
     usersError,
     handleClickDeleteUser,

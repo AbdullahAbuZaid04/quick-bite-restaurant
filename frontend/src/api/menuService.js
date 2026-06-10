@@ -13,9 +13,13 @@ export const createMenuItem = async (formData) => {
   }
 };
 
-export const getAllMenu = async () => {
+export const getAllMenu = async (params = {}) => {
   try {
-    const response = await apiClient('/api/menu', {
+    const query = new URLSearchParams();
+    if (params.limit) query.set('limit', params.limit);
+    if (params.offset) query.set('offset', params.offset);
+    const qs = query.toString();
+    const response = await apiClient(`/api/menu${qs ? `?${qs}` : ''}`, {
       method: 'GET',
     });
 

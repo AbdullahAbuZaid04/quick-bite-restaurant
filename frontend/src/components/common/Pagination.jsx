@@ -8,6 +8,7 @@ export default function Pagination({
   itemName,
   onPageChange,
 }) {
+  const showingStart = (currentPage - 1) * itemsPerPage + 1;
   const showingEnd = Math.min(currentPage * itemsPerPage, totalItems);
 
   if (totalPages <= 1) return null;
@@ -16,8 +17,11 @@ export default function Pagination({
     <div className="p-4 flex flex-col sm:flex-row justify-between items-center gap-5 border-t border-gray-100 bg-white/50 rounded-b-3xl">
       <p className="text-gray-500 text-xs font-bold uppercase tracking-widest">
         Showing {" "}
-        <span className="text-gray-900">{showingEnd}</span> {" "}
-        of <span className="text-gray-900">{totalItems}</span> {itemName}
+        <span className="text-gray-900">{showingStart}</span>
+        {" "}to{" "}
+        <span className="text-gray-900">{showingEnd}</span>
+        {" "}of{" "}
+        <span className="text-gray-900">{totalItems}</span> {itemName}
       </p>
 
       <div className="flex items-center gap-2 bg-gray-50/80 p-1.5 rounded-2xl border border-gray-100">
