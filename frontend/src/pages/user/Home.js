@@ -29,18 +29,14 @@ export default function Home() {
         </section>
 
         <section className="hidden lg:flex flex-1">
-          <picture>
-            <source srcSet={pizzaWebp} type="image/webp" />
-            <img
-              src={pizzaWebp}
-              alt="Delicious Pizza"
-              width={600}
-              height={600}
-              className="w-full h-full object-contain rotate-1 hover:-rotate-2 transition-transform duration-500"
-            />
-          </picture>
+          <img
+            src={pizzaWebp}
+            alt="Delicious Pizza"
+            width={600}
+            height={600}
+            className="w-full h-full object-contain rotate-1 hover:-rotate-2 transition-transform duration-500"
+          />
         </section>
-
       </main>
     </div>
   );
