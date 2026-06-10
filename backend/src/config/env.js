@@ -53,9 +53,9 @@ const config = {
   },
 
   admin: {
-    name: process.env.ADMIN_NAME || 'Administrator',
-    email: process.env.ADMIN_EMAIL || 'admin@quickbite.local',
-    password: process.env.ADMIN_PASSWORD || 'Admin@12345',
+    name: process.env.ADMIN_NAME || 'Admin',
+    email: process.env.ADMIN_EMAIL || 'admin@quickbite.com',
+    password: process.env.ADMIN_PASSWORD || 'Admin12345',
   },
 };
 
