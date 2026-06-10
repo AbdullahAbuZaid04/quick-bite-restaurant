@@ -17,11 +17,8 @@ export default function Register() {
     password: ""
   }, onSuccess, "register");
 
-  console.log(errors);
-
   async function onSuccess() {
     const result = await register(formData.fullName, formData.email, formData.password);
-    console.log(result);
     if (result.success) {
       const registeredUser = result.user;
       if (cartItems.length > 0) {
@@ -146,7 +143,8 @@ export default function Register() {
           <div className="hidden md:block w-1/2">
             <img
               src={authWebp}
-              alt="Culinary experience"
+              alt=""
+              role="presentation"
               loading="lazy"
               width={600}
               height={600}

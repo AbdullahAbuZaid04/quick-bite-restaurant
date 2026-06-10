@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Plus, Clock } from "lucide-react";
 import toast from "react-hot-toast";
+import { formatPrice } from "../../utils/formatters";
 
 const ProductCard = memo(function ProductCard({ item, addToCart }) {
   return (
@@ -25,7 +26,7 @@ const ProductCard = memo(function ProductCard({ item, addToCart }) {
               {item.name}
             </h3>
             <span className="text-brand-primary font-black text-base whitespace-nowrap">
-              ${item.price}
+              {formatPrice(item.price)}
             </span>
           </div>
 

@@ -43,12 +43,12 @@ export default function AppRouter() {
         <Route path="/order-success" element={<ProtectedRoute requiredRole="customer"><OrderSuccess /></ProtectedRoute>} />
         <Route path="/order-tracking" element={<ProtectedRoute requiredRole="customer"><OrderTracking /></ProtectedRoute>} />
 
-        {/* Protected Admin Routes (Require Admin Role) */}
-        <Route path="/dashboard" element={<ProtectedRoute requiredRole="admin"><AdminLayout><Dashboard /></AdminLayout></ProtectedRoute>} />
-        <Route path="/manage-menu" element={<ProtectedRoute requiredRole="admin"><AdminLayout><MenuManagement /></AdminLayout></ProtectedRoute>} />
-        <Route path="/categories-management" element={<ProtectedRoute requiredRole="admin"><AdminLayout><CategoriesManagement /></AdminLayout></ProtectedRoute>} />
-        <Route path="/orders-management" element={<ProtectedRoute requiredRole="admin"><AdminLayout><OrdersManagement /></AdminLayout></ProtectedRoute>} />
-        <Route path="/users-management" element={<ProtectedRoute requiredRole="admin"><AdminLayout><UsersManagement /></AdminLayout></ProtectedRoute>} />
+        {/* Protected Admin Routes (Require Admin or Manager Role) */}
+        <Route path="/dashboard" element={<ProtectedRoute requiredRole={["admin", "manager"]}><AdminLayout><Dashboard /></AdminLayout></ProtectedRoute>} />
+        <Route path="/manage-menu" element={<ProtectedRoute requiredRole={["admin", "manager"]}><AdminLayout><MenuManagement /></AdminLayout></ProtectedRoute>} />
+        <Route path="/categories-management" element={<ProtectedRoute requiredRole={["admin", "manager"]}><AdminLayout><CategoriesManagement /></AdminLayout></ProtectedRoute>} />
+        <Route path="/orders-management" element={<ProtectedRoute requiredRole={["admin", "manager"]}><AdminLayout><OrdersManagement /></AdminLayout></ProtectedRoute>} />
+        <Route path="/users-management" element={<ProtectedRoute requiredRole={["admin", "manager"]}><AdminLayout><UsersManagement /></AdminLayout></ProtectedRoute>} />
 
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/not-found" element={<NotFound />} />

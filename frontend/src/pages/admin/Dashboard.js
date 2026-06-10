@@ -24,7 +24,7 @@ export default function Dashboard() {
     {
       icon: <LayoutDashboard size={20} />,
       title: "Total Revenue",
-      number: Math.round(revenue.total || 0),
+      number: revenue.total || 0,
       color: "purple",
     },
     {

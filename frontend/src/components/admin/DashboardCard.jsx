@@ -1,6 +1,7 @@
 import { memo } from "react";
+import { formatPrice } from "../../utils/formatters";
 
-const Card = memo(function Card({ icon, title, number, rate, color }) {
+const Card = memo(function Card({ icon, title, number, color }) {
   const colors = {
     orange: "bg-brand-light text-brand-primary",
     purple: "bg-purple-50 text-purple-500",
@@ -15,8 +16,7 @@ const Card = memo(function Card({ icon, title, number, rate, color }) {
       </div>
       <p className="text-content-subtitle text-sm">{title}</p>
       <h3 className="text-2xl font-bold text-content-paragraph">
-        {title.includes("Revenue") ? "$" : ""}
-        {number.toLocaleString()}
+        {title.includes("Revenue") ? formatPrice(number) : number.toLocaleString()}
         {title.includes("Products") && (
           <span className="text-lg ml-1">Active</span>
         )}

@@ -1,11 +1,14 @@
 import { Eye, Search, Trash2 } from 'lucide-react';
 import Navbar from '../../components/common/Navbar';
+import Pagination from '../../components/common/Pagination';
 import { getMyOrders, cancelOrderApi } from '../../api/orderService';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { getStatusColor, STATUS_MAP } from '../../utils/statusColors';
 import OrderDetailsModal from '../../components/user/OrderDetailsModal';
 import OrderCancelledModal from '../../components/user/OrderCancelledModal';
-import { formatOrderId, formatPrice,formatDate } from '../../utils/formatters';
+import { formatOrderId, formatPrice, formatDate } from '../../utils/formatters';
+
+const LIMIT = 10;
 
 export default function OrderTracking() {
   const [orders, setOrders] = useState([]);
@@ -14,24 +17,42 @@ export default function OrderTracking() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [cancelOrderId, setCancelOrderId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [meta, setMeta] = useState({});
+  const fetchIdRef = useRef(0);
+
+  const totalPages = meta.total ? Math.ceil(meta.total / (meta.limit || LIMIT)) : 1;
+
+  const fetchMyOrders = async (page) => {
+    const id = ++fetchIdRef.current;
+    setLoading(true);
+    setError(null);
+    try {
+      const offset = (page - 1) * LIMIT;
+      const response = await getMyOrders({ limit: LIMIT, offset });
+      if (id !== fetchIdRef.current) return;
+      if (response.success) {
+        setOrders(response.data);
+        setMeta(response.meta || {});
+      } else {
+        setError(response.message || "Failed to fetch orders");
+      }
+    } catch (err) {
+      if (id !== fetchIdRef.current) return;
+      setError(err.message || "Failed to fetch orders");
+    } finally {
+      if (id === fetchIdRef.current) setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchMyOrders = async () => {
-      try {
-        const response = await getMyOrders();
-        if (response.success) {
-          setOrders(response.data);
-        } else {
-          setError(response.message || "Failed to fetch orders");
-        }
-      } catch (err) {
-        setError(err.message || "Failed to fetch orders");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMyOrders();
-  }, []);
+    fetchMyOrders(currentPage);
+    window.scrollTo(0, 0);
+  }, [currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const handleCancelOrder = async (orderId) => {
     try {
@@ -97,7 +118,7 @@ export default function OrderTracking() {
 
             <section className='mx-10'>
               <div className="overflow-x-auto rounded-2xl">
-                <table className="w-full text-center min-w-[900px]">
+                <table className="w-full text-center min-w-[900px]" aria-label="Your orders">
                   <thead className="bg-brand-primary text-white text-center text-sm font-bold uppercase">
                     <tr>
                       <th className="py-5 px-6">Order ID</th>
@@ -121,10 +142,16 @@ export default function OrderTracking() {
                     ) : error ? (
                       <tr>
                         <td colSpan="7" className="text-center py-16">
-                          <div className="flex flex-col items-center gap-3">
-                            <span className="text-red-500 font-bold bg-red-50 px-6 py-3 rounded-xl border border-red-200">
-                              {error}
-                            </span>
+                          <div className="flex flex-col items-center justify-center gap-3">
+                            <div className="bg-red-50 p-3 rounded-full">
+                              <span className="text-red-500 text-sm font-bold">{error}</span>
+                            </div>
+                            <button
+                              onClick={() => fetchMyOrders(currentPage)}
+                              className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white hover:bg-gray-700 rounded-lg transition-colors text-sm font-medium"
+                            >
+                              Retry
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -159,16 +186,18 @@ export default function OrderTracking() {
                               <button
                                 className='cursor-pointer hover:text-brand-primary transition-colors duration-200'
                                 title='View Order'
+                                aria-label="View order details"
                                 onClick={() => setSelectedOrder(order.id)}
                               >
                                 <Eye size={20} />
                               </button>
                               {order.status === 'pending' && (
-                                <button
-                                  className='cursor-pointer hover:text-red-500 transition-colors duration-200'
-                                  title='Cancel Order'
-                                  onClick={() => setCancelOrderId(order.id)}
-                                >
+                                  <button
+                                    className='cursor-pointer hover:text-red-500 transition-colors duration-200'
+                                    title='Cancel Order'
+                                    aria-label="Cancel order"
+                                    onClick={() => setCancelOrderId(order.id)}
+                                  >
                                   <Trash2 size={20} />
                                 </button>
                               )}
@@ -180,6 +209,16 @@ export default function OrderTracking() {
                   </tbody>
                 </table>
               </div>
+              {filteredOrders.length > 0 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={meta.total || filteredOrders.length}
+                  itemsPerPage={meta.limit || LIMIT}
+                  itemName="orders"
+                  onPageChange={setCurrentPage}
+                />
+              )}
             </section>
           </div>
         </section >

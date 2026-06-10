@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createMenuItem, getAllMenu, updateMenuItem, deleteMenuItem } from "../api/menuService";
 import { getAllCategories } from "../api/categoryService";
 import toast from 'react-hot-toast';
 
-export function useMenu(pageSize = 10) {
+export function useMenu(pageSize = 10, searchText = '', activeTab = 'All') {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isProductDeleteModalOpen, setIsProductDeleteModalOpen] = useState(false);
@@ -16,13 +16,22 @@ export function useMenu(pageSize = 10) {
   const [menuError, setMenuError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [meta, setMeta] = useState({});
+  const pageRef = useRef(1);
+
+  const effectiveCategories = categories;
 
   const fetchProducts = useCallback(async (page = 1) => {
     setMenuError(null);
     setIsLoadingProducts(true);
     try {
       const offset = (page - 1) * pageSize;
-      const result = await getAllMenu({ limit: pageSize, offset });
+      const params = { limit: pageSize, offset };
+      if (searchText) params.q = searchText;
+      if (activeTab !== 'All') {
+        const cat = effectiveCategories.find(c => c.name === activeTab);
+        if (cat) params.category_id = cat.id;
+      }
+      const result = await getAllMenu(params);
       if (result.success) {
         setProducts(result.data || []);
         setMeta(result.meta || {});
@@ -34,7 +43,7 @@ export function useMenu(pageSize = 10) {
     } finally {
       setIsLoadingProducts(false);
     }
-  }, [pageSize]);
+  }, [pageSize, searchText, activeTab, effectiveCategories]);
 
   const fetchCategories = useCallback(async () => {
     setIsLoadingCategories(true);
@@ -53,7 +62,16 @@ export function useMenu(pageSize = 10) {
   }, []);
 
   useEffect(() => {
-    fetchProducts(currentPage);
+    setCurrentPage(1);
+    pageRef.current = 1;
+    fetchProducts(1);
+  }, [searchText, activeTab, fetchProducts]);
+
+  useEffect(() => {
+    if (currentPage !== pageRef.current) {
+      pageRef.current = currentPage;
+      fetchProducts(currentPage);
+    }
   }, [currentPage, fetchProducts]);
 
   useEffect(() => {

@@ -44,9 +44,13 @@ export const createOrderApi = async (order) => {
   }
 }
 
-export const getMyOrders = async () => {
+export const getMyOrders = async ({ limit, offset } = {}) => {
   try {
-    const response = await apiClient('/api/orders', {
+    const query = new URLSearchParams();
+    if (limit !== undefined) query.append('limit', limit);
+    if (offset !== undefined) query.append('offset', offset);
+    const qs = query.toString() ? `?${query.toString()}` : '';
+    const response = await apiClient(`/api/orders${qs}`, {
       method: 'GET',
     });
 

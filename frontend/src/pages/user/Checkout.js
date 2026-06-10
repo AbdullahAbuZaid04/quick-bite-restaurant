@@ -17,14 +17,16 @@ export default function Checkout() {
   const [errors, setErrors] = useState({ success: true });
 
   const inputRef = useRef(null);
+  const placingRef = useRef(false);
 
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-    inputRef.current.focus();
-  }, [errors])
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    inputRef.current?.focus();
+  }, [])
+
+  useEffect(() => {
+    return () => { placingRef.current = false; };
+  }, []);
 
   const handlePlaceOrder = async () => {
     if (!isLoggedIn) {
@@ -37,6 +39,8 @@ export default function Checkout() {
       return;
     }
 
+    if (placingRef.current) return;
+    placingRef.current = true;
     setIsPlacing(true);
     const orderData = {
       items: cartItems.map(item => ({
@@ -47,11 +51,12 @@ export default function Checkout() {
     };
 
     const result = await createOrderApi(orderData);
+    placingRef.current = false;
     setIsPlacing(false);
 
     if (result.success) {
       toast.success('Order placed successfully!');
-      navigate('/order-success', { state: { orderId: result.data.id } });
+      navigate('/order-success', { replace: true, state: { orderId: result.data.id } });
     } else {
       setErrors(result);
       toast.error(result.message || 'Failed to place order');
@@ -78,6 +83,7 @@ export default function Checkout() {
               value={deliveryAddress}
               onChange={(e) => { setDeliveryAddress(e.target.value); setErrors({ success: true }); }}
               placeholder="Enter your full delivery address..."
+              name="deliveryAddress"
               aria-label="Delivery address"
               className={`w-full bg-ui-mainBg py-4 pl-12 pr-4 rounded-2xl text-sm outline-none border transition-all ${errors?.success ? 'border-brand-primary' : 'border-red-500'}`}
             />

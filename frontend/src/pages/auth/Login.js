@@ -16,8 +16,6 @@ export default function Login() {
     password: ""
   }, onSuccess, "login");
 
-  console.log(errors);
-
   async function onSuccess() {
     const result = await login(formData.email, formData.password);
     if (result.success) {
@@ -42,7 +40,7 @@ export default function Login() {
         <section className="flex bg-ui-white rounded-2xl overflow-hidden max-w-5xl w-full flex-col md:flex-row min-h-[600px]">
 
           <div className="hidden md:block w-1/2">
-            <img src={authWebp} alt="login culinary" loading="lazy" width={600} height={600} className="w-full h-full object-cover" />
+            <img src={authWebp} alt="" role="presentation" loading="lazy" width={600} height={600} className="w-full h-full object-cover" />
           </div>
 
           <div className="p-8 md:p-16 w-full md:w-1/2 flex flex-col justify-center bg-ui-white">

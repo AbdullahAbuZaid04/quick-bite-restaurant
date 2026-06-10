@@ -47,6 +47,7 @@ export function useUsers() {
       if (result.success) {
         toast.success("User deleted successfully");
         setUsers(prevUsers => prevUsers.filter(u => u.id !== id));
+        setMeta(prev => ({ ...prev, total: Math.max(0, (prev.total || 1) - 1) }));
         setIsUserDeleteModalOpen(false);
         setSelectedUser(null);
       } else {
