@@ -1,51 +1,20 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
 import Navbar from '../../components/common/Navbar';
 import { useCart } from '../../context/cartContext';
-import { getAllMenu } from '../../api/menuService';
-import { getAllCategories } from '../../api/categoryService';
+import { useMenu } from '../../hooks/useMenu';
 import ProductCard from '../../components/user/ProductCard';
 
 export default function Menu() {
   const { addToCart } = useCart();
   const [activeTab, setActiveTab] = useState("All");
   const [searchText, setSearchText] = useState("");
-  const [menuProducts, setMenuProducts] = useState([]);
-  const [allCategories, setAllCategories] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { products: menuProducts, categories: rawCategories, isLoadingProducts: isLoadingMenu, isLoadingCategories } = useMenu();
 
-  useEffect(() => {
-    const fetchMenu = async () => {
-      try {
-        const response = await getAllMenu();
-        setMenuProducts(Array.isArray(response.data) ? response.data : []);
-      } catch (err) {
-        console.error("Failed to fetch menu", err);
-        setMenuProducts([]);
-      }
-    };
-    fetchMenu();
-
-    const fetchCategories = async () => {
-      try {
-        const response = await getAllCategories();
-        const categories = Array.isArray(response.data) ? response.data : [];
-        setAllCategories([{ id: 0, name: "All" }, ...categories]);
-      } catch (err) {
-        console.error("Failed to fetch categories", err);
-        setAllCategories([{ id: 0, name: "All" }]);
-      }
-    };
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    if (!isLoading) return;
-    if (menuProducts.length > 0 || allCategories.length > 0) {
-      setIsLoading(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [menuProducts, allCategories]);
+  const allCategories = useMemo(() => {
+    if (isLoadingCategories) return [];
+    return [{ id: 0, name: "All" }, ...rawCategories];
+  }, [rawCategories, isLoadingCategories]);
 
   const filteredProducts = useMemo(() =>
     activeTab === "All"
@@ -81,7 +50,7 @@ export default function Menu() {
         </section>
 
         <section className="max-w-7xl mx-auto px-4 md:px-10 mt-8 md:mt-10 flex gap-4 overflow-x-auto pb-4">
-          {allCategories.map((cat) => (
+          {!isLoadingCategories && allCategories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setActiveTab(cat.name)}
@@ -97,7 +66,7 @@ export default function Menu() {
 
         {/* Products Grid */}
         <section className="max-w-7xl mx-auto px-6 md:px-10 mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {isLoading ? (
+          {isLoadingMenu ? (
             Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="bg-ui-white p-3 rounded-2xl border border-ui-border animate-pulse">
                 <div className="rounded-xl mb-3 aspect-[4/3] bg-gray-200" />
