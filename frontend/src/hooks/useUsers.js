@@ -22,7 +22,6 @@ export function useUsers() {
         setUsersError(result.message || 'Failed to load users');
       }
     } catch (error) {
-      console.error('Failed to fetch users:', error);
       setUsersError(error.message);
     } finally {
       setIsLoadingUsers(false);
@@ -41,18 +40,16 @@ export function useUsers() {
   const handleDeleteUser = async (id) => {
     try {
       const result = await deleteUserApi(id);
-      if (result.success !== false) {
+      if (result.success) {
         toast.success("User deleted successfully");
         setUsers(prevUsers => prevUsers.filter(u => u.id !== id));
+        setIsUserDeleteModalOpen(false);
+        setSelectedUser(null);
       } else {
         toast.error(result.message || 'Failed to delete user');
       }
     } catch (error) {
-      console.error('Failed to delete user:', error);
       toast.error(error.message || 'Failed to delete user');
-    } finally {
-      setIsUserDeleteModalOpen(false);
-      setSelectedUser(null);
     }
   };
 

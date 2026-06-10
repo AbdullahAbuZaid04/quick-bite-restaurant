@@ -19,7 +19,6 @@ export const AuthProvider = ({ children }) => {
         return { success: true, user: result.data.user };
       }
     } catch (error) {
-      console.error('Login error:', error.message);
       return { success: false, error: error.message };
     }
   }, []);
@@ -35,7 +34,6 @@ export const AuthProvider = ({ children }) => {
         return { success: true, user: result.data.user };
       }
     } catch (error) {
-      console.error('Register error:', error.message);
       return { success: false, error: error.message };
     }
   }, []);

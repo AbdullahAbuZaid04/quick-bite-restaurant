@@ -21,7 +21,7 @@ const MenuRow = memo(function MenuRow({ image, name, categoryName, price, prepTi
         </span>
       </td>
 
-      <td className="py-4 px-6 font-bold text-brand-primary">${price}</td>
+      <td className="py-4 px-6 font-bold text-brand-primary">{price}</td>
 
       <td className="py-4 px-6 text-content-paragraph font-medium">{prepTime} min</td>
 

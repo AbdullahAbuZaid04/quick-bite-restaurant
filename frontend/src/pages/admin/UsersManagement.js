@@ -96,7 +96,7 @@ export default function UsersManagement() {
             currentPage={currentPage}
             totalPages={totalPages}
             totalItems={meta.total || users.length}
-            itemsPerPage={meta.limit || users.length}
+            itemsPerPage={meta.limit || 10}
             itemName="users"
             onPageChange={handlePageChange}
           />

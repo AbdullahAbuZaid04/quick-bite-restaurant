@@ -34,7 +34,7 @@ const OrderRow = memo(function OrderRow({ OrderID, Customer, Amount, Status, sta
     <tr className="border-b border-ui-border text-center hover:bg-ui-mainBg transition-all duration-300">
       <td className="py-5 px-6 text-content-subtitle text-sm font-medium">{OrderID}</td>
       <td className="py-5 px-6 font-bold text-content-paragraph">{Customer}</td>
-      <td className="py-5 px-6 font-bold text-brand-primary">{Amount}fasfa</td>
+      <td className="py-5 px-6 font-bold text-brand-primary">{Amount}</td>
       <td className="py-5 px-6">
         <span className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${STATUS_STYLES[statusKey] || "bg-gray-50 text-gray-500 border-gray-200"}`}>
           {Status}
@@ -45,7 +45,7 @@ const OrderRow = memo(function OrderRow({ OrderID, Customer, Amount, Status, sta
         <div className="flex items-center justify-center gap-4">
           {statusKey === 'pending' ? (
             <button
-              onClick={() => onConfirmPayment && onConfirmPayment(OrderID)}
+              onClick={() => onConfirmPayment && onConfirmPayment()}
               disabled={updating || isConfirmingPayment}
               className={`flex items-center gap-1.5 ${isConfirmingPayment ? 'cursor-not-allowed bg-green-300' : 'cursor-pointer bg-green-500 hover:bg-green-600'} text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50`}
               title="Confirm Payment"

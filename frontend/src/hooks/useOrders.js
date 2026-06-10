@@ -24,7 +24,6 @@ export function useOrders(limit = 20) {
         setOrdersError(result.message || 'Failed to load orders');
       }
     } catch (error) {
-      console.error('Failed to fetch orders:', error);
       setOrdersError(error.message);
     } finally {
       setIsLoading(false);
@@ -73,6 +72,7 @@ export function useOrders(limit = 20) {
         });
         if (!createRes.success) {
           toast.error(createRes.message || 'Failed to create payment');
+          setConfirmingPaymentId(null);
           return;
         }
         paymentId = createRes.data.id;
@@ -84,6 +84,7 @@ export function useOrders(limit = 20) {
         fetchOrders(currentPage);
       } else {
         toast.error(markRes.message || 'Failed to confirm payment');
+        fetchOrders(currentPage);
       }
     } catch (error) {
       toast.error(error.message || 'An error occurred');

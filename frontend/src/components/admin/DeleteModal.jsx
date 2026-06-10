@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function DeleteModal({ isOpen, onClose, itemSelected, onDelete, type }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,6 +41,8 @@ export default function DeleteModal({ isOpen, onClose, itemSelected, onDelete, t
               try {
                 await onDelete(itemSelected.id);
                 onClose();
+              } catch (error) {
+                toast.error(error.message || `Failed to delete ${modalTitles[type]}`);
               } finally {
                 setIsSubmitting(false);
               }

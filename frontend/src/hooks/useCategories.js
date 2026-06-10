@@ -22,7 +22,6 @@ export function useCategories() {
         setCategoriesError(result.message || 'Failed to load categories');
       }
     } catch (error) {
-      console.error('Failed to fetch categories:', error);
       setCategoriesError(error.message);
     } finally {
       setIsLoadingCategories(false);
@@ -44,7 +43,6 @@ export function useCategories() {
         toast.error(result.message || 'Unknown error occurred');
       }
     } catch (error) {
-      console.error('Failed to add category:', error);
       toast.error(error.message);
     }
   };
@@ -66,7 +64,6 @@ export function useCategories() {
         toast.error(result.message || 'Failed to update category');
       }
     } catch (error) {
-      console.error('Failed to update category:', error);
       toast.error(error.message);
     }
   };
@@ -86,10 +83,8 @@ export function useCategories() {
         setSelectedCategory(null);
       } else {
         toast.error(result.message || 'Failed to delete category');
-        console.error(result.message || 'Failed to delete category');
       }
     } catch (error) {
-      console.error('Failed to delete category:', error);
       toast.error(error.message || 'Failed to delete category');
     }
   };

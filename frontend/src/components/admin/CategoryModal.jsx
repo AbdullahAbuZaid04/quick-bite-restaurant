@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function CategoryModal({ isOpen, onClose, type = "add", category, onSubmit }) {
   const [name, setName] = useState("");
@@ -30,7 +31,7 @@ export default function CategoryModal({ isOpen, onClose, type = "add", category,
       }
       onClose();
     } catch (error) {
-      console.error(`Failed to ${type} category:`, error);
+      toast.error(error.message || `Failed to ${type} category`);
     } finally {
       setIsSubmitting(false);
     }

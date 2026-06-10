@@ -17,7 +17,6 @@ export function useDashboard() {
         setDashboardError(result.message || 'Failed to load dashboard data');
       }
     } catch (error) {
-      console.error('Failed to fetch dashboard:', error);
       setDashboardError(error.message);
     } finally {
       setIsLoading(false);

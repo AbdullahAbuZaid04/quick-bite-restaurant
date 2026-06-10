@@ -26,7 +26,6 @@ export function useMenu() {
         setMenuError(result.message || 'Failed to load products');
       }
     } catch (error) {
-      console.error('Failed to fetch products:', error);
       setMenuError(error.message);
     } finally {
       setIsLoadingProducts(false);
@@ -39,9 +38,11 @@ export function useMenu() {
       const result = await getAllCategories();
       if (result.success) {
         setCategories(result.data || []);
+      } else {
+        setMenuError(result.message || 'Failed to load categories');
       }
     } catch (error) {
-      console.error('Failed to fetch categories:', error);
+      setMenuError(error.message);
     } finally {
       setIsLoadingCategories(false);
     }
@@ -63,7 +64,6 @@ export function useMenu() {
         toast.error(result.message || 'Unknown error occurred');
       }
     } catch (error) {
-      console.error('Failed to add product:', error);
       toast.error(error.message);
     }
   };
@@ -85,7 +85,6 @@ export function useMenu() {
         toast.error(result.message || 'Failed to update product');
       }
     } catch (error) {
-      console.error('Failed to update product:', error);
       toast.error(error.message);
     }
   };
@@ -107,7 +106,6 @@ export function useMenu() {
         toast.error(result.message || 'Failed to delete product');
       }
     } catch (error) {
-      console.error('Failed to delete product:', error);
       toast.error(error.message || 'Failed to delete product');
     }
   };

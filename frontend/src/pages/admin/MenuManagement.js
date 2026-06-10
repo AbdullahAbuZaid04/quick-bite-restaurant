@@ -6,6 +6,7 @@ import Pagination from "../../components/common/Pagination";
 import ProductModal from "../../components/admin/ProductModal";
 import { useMenu } from "../../hooks/useMenu";
 import DeleteModal from "../../components/admin/DeleteModal";
+import { formatPrice } from "../../utils/formatters";
 
 const TABLE_HEADERS = ["Product Image", "Product Name", "Category", "Price", "Prep Time", "Action"];
 
@@ -21,13 +22,12 @@ export default function MenuManagement() {
   }, [location.state, setIsAddModalOpen]);
 
   const productList = Array.isArray(products) ? products : [];
-  const meta = productList?.meta || {};
 
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => { setCurrentPage(1); }, [products.length]);
   const pageSize = 10;
-  const totalPages = Math.max(1, Math.ceil((meta.total || productList.length) / pageSize));
+  const totalPages = Math.max(1, Math.ceil(productList.length / pageSize));
 
   const paginatedProducts = productList.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
@@ -102,7 +102,7 @@ export default function MenuManagement() {
                     image={item.image_url}
                     name={item.name}
                     categoryName={item.category_name}
-                    price={item.price}
+                    price={formatPrice(item.price)}
                     prepTime={item.prepare_time}
                     handleEdit={() => handleClickEdit(item)}
                     handleDelete={() => handleClickDeleteProduct(item)}
@@ -117,7 +117,7 @@ export default function MenuManagement() {
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            totalItems={meta.total || productList.length}
+            totalItems={productList.length}
             itemsPerPage={pageSize}
             itemName="products"
             onPageChange={setCurrentPage}
