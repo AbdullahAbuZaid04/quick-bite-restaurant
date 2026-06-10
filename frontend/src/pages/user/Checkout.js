@@ -62,7 +62,7 @@ export default function Checkout() {
     <div className="min-h-screen bg-ui-mainBg pb-12">
       <Navbar />
 
-      <main className="max-w-xl mx-auto mt-8 md:mt-12 px-6">
+      <main id="main-content" className="max-w-xl mx-auto mt-8 md:mt-12 px-6">
         <h1 className="text-3xl md:text-4xl font-bold text-center text-content-paragraph mb-10 tracking-tight">
           Checkout
         </h1>
@@ -78,6 +78,7 @@ export default function Checkout() {
               value={deliveryAddress}
               onChange={(e) => { setDeliveryAddress(e.target.value); setErrors({ success: true }); }}
               placeholder="Enter your full delivery address..."
+              aria-label="Delivery address"
               className={`w-full bg-ui-mainBg py-4 pl-12 pr-4 rounded-2xl text-sm outline-none border transition-all ${errors?.success ? 'border-brand-primary' : 'border-red-500'}`}
             />
           </div>
