@@ -5,7 +5,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { getStatusColor, STATUS_MAP } from '../../utils/statusColors';
 import OrderDetailsModal from '../../components/user/OrderDetailsModal';
 import OrderCancelledModal from '../../components/user/OrderCancelledModal';
-import { formatOrderId, formatPrice } from '../../utils/formatters';
+import { formatOrderId, formatPrice,formatDate } from '../../utils/formatters';
 
 export default function OrderTracking() {
   const [orders, setOrders] = useState([]);
@@ -144,7 +144,7 @@ export default function OrderTracking() {
                       filteredOrders.map((order) => (
                         <tr key={order.id} className="border-b border-ui-border text-center hover:bg-ui-mainBg transition-all">
                           <td className="px-6 py-5 font-black text-content-paragraph">{formatOrderId(order.id)}</td>
-                          <td className="px-6 py-5 text-content-subtitle font-medium">{order.created_at}</td>
+                          <td className="px-6 py-5 text-content-subtitle font-medium">{formatDate(order.created_at)}</td>
                           <td className="px-6 py-5 font-bold text-content-paragraph">
                             <span className="bg-ui-mainBg px-3 py-1.5 rounded-lg border border-ui-border">{order.items_count || 0} items</span>
                           </td>
