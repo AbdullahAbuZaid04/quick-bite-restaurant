@@ -17,7 +17,7 @@ const UserRow = memo(function UserRow({ name, email, role, handleClickDelete }) 
       </td>
       <td className="py-4 px-6 text-center">
         {
-          role !== "admin" && <button onClick={handleClickDelete} className="text-content-subtitle hover:text-status-cancelled transition-colors duration-300">
+          role === "admin" ? "-" : <button onClick={handleClickDelete} className="text-content-subtitle hover:text-status-cancelled transition-colors duration-300">
             <Trash2 size={18} />
           </button>
         }
