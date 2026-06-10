@@ -27,7 +27,9 @@ export default function OrdersManagement() {
     updatingId,
     ordersError,
     refetchOrders,
-    handleStatusChange
+    handleStatusChange,
+    handleConfirmPayment,
+    confirmingPaymentId
   } = useOrders(limit);
 
   const totalPages = meta.total ? Math.ceil(meta.total / (meta.limit || limit)) : 1;
@@ -126,6 +128,8 @@ export default function OrdersManagement() {
                     Date={order.created_at}
                     updating={updatingId === order.id}
                     onStatusChange={(newStatus) => handleStatusChange(order.id, newStatus)}
+                    isConfirmingPayment={confirmingPaymentId === order.id}
+                    onConfirmPayment={() => handleConfirmPayment(order.id, order.total_amount)}
                   />
                 ))
               )}

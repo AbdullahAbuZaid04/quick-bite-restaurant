@@ -56,6 +56,47 @@ export const getMyOrders = async () => {
   }
 };
 
+export const payOrderApi = async (paymentData) => {
+  try {
+    const response = await apiClient(`/api/payments`, {
+      method: 'POST',
+      body: JSON.stringify(paymentData),
+    });
+
+    return response;
+  } catch (error) {
+    return { success: false, message: error.message || "Network error" };
+  }
+}
+
+export const markPaymentPaidApi = async (id, transactionReference) => {
+  try {
+    const response = await apiClient(`/api/payments/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        status: "paid",
+        transaction_reference: transactionReference
+      }),
+    });
+
+    return response;
+  } catch (error) {
+    return { success: false, message: error.message || "Network error" };
+  }
+}
+
+export const getOrderPaymentsApi = async (orderId) => {
+  try {
+    const response = await apiClient(`/api/orders/${orderId}/payments`, {
+      method: 'GET',
+    });
+
+    return response;
+  } catch (error) {
+    return { success: false, message: error.message || "Network error" };
+  }
+}
+
 export const cancelOrderApi = async (id) => {
   try {
     const response = await apiClient(`/api/orders/${id}/cancel`, {
