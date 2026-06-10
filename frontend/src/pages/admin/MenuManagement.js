@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Plus, AlertCircle, RefreshCw } from "lucide-react";
 import MenuRow from "../../components/admin/MenuRow";
 import Pagination from "../../components/common/Pagination";
@@ -10,6 +11,14 @@ const TABLE_HEADERS = ["Product Image", "Product Name", "Category", "Price", "Pr
 
 export default function MenuManagement() {
   const { isAddModalOpen, categories, setIsAddModalOpen, isEditModalOpen, setIsEditModalOpen, isProductDeleteModalOpen, setIsProductDeleteModalOpen, selectedProduct, isLoadingProducts, isLoadingCategories, products, menuError, refetchProducts, handleAddProduct, handleClickEdit, handleEdit, handleClickDeleteProduct, handleDeleteProduct } = useMenu();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.openAddModal) {
+      setIsAddModalOpen(true);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, setIsAddModalOpen]);
 
   const productList = Array.isArray(products) ? products : [];
   const meta = productList?.meta || {};
