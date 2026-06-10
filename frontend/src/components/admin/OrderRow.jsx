@@ -32,9 +32,9 @@ const OrderRow = memo(function OrderRow({ OrderID, Customer, Amount, Status, sta
 
   return (
     <tr className="border-b border-ui-border text-center hover:bg-ui-mainBg transition-all duration-300">
-      <td className="py-5 px-6 text-content-subtitle text-sm">{OrderID}</td>
+      <td className="py-5 px-6 text-content-subtitle text-sm font-medium">{OrderID}</td>
       <td className="py-5 px-6 font-bold text-content-paragraph">{Customer}</td>
-      <td className="py-5 px-6 font-bold text-content-paragraph">{Amount}</td>
+      <td className="py-5 px-6 font-bold text-brand-primary">{Amount}fasfa</td>
       <td className="py-5 px-6">
         <span className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${STATUS_STYLES[statusKey] || "bg-gray-50 text-gray-500 border-gray-200"}`}>
           {Status}

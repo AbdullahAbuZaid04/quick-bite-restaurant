@@ -143,14 +143,14 @@ export default function OrderTracking() {
                     ) : (
                       filteredOrders.map((order) => (
                         <tr key={order.id} className="border-b border-ui-border text-center hover:bg-ui-mainBg transition-all">
-                          <td className="px-6 py-5 font-black text-content-paragraph">{formatOrderId(order.id)}</td>
-                          <td className="px-6 py-5 text-content-subtitle font-medium">{formatDate(order.created_at)}</td>
+                          <td className="px-6 py-5 text-content-subtitle text-sm font-medium">{formatOrderId(order.id)}</td>
+                          <td className="px-6 py-5 text-content-subtitle text-sm">{formatDate(order.created_at)}</td>
                           <td className="px-6 py-5 font-bold text-content-paragraph">
                             <span className="bg-ui-mainBg px-3 py-1.5 rounded-lg border border-ui-border">{order.items_count || 0} items</span>
                           </td>
-                          <td className="px-6 py-5 font-black text-brand-primary text-base">{formatPrice(order.total_amount)}</td>
+                          <td className="px-6 py-5 font-bold text-brand-primary">{formatPrice(order.total_amount)}</td>
                           <td className="px-6 py-5">
-                            <span className={`px-4 py-1.5 mx-auto rounded-xl text-sm font-bold flex items-center justify-center gap-2 w-fit border ${getStatusColor(order.status)}`}>
+                            <span className={`px-3 py-1.5 mx-auto rounded-lg text-xs font-bold flex items-center justify-center gap-2 w-fit border ${getStatusColor(order.status)}`}>
                               {STATUS_MAP[order.status]}
                             </span>
                           </td>

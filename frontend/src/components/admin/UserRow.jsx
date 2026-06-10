@@ -6,7 +6,7 @@ const UserRow = memo(function UserRow({ name, email, role, handleClickDelete }) 
 
   return (
     <tr className="border-b border-ui-border text-center hover:bg-ui-mainBg">
-      <td className="py-4 px-6 text-content-paragraph text-sm font-medium">{name}</td>
+      <td className="py-4 px-6 font-bold text-content-paragraph text-sm">{name}</td>
       <td className="py-4 px-6 text-content-paragraph text-sm font-medium">{email}</td>
       <td className="py-4 px-6">
         <span

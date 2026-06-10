@@ -66,9 +66,9 @@ export default function CategoriesManagement() {
                 </tr>
               ) : (
                 categories.map((cat) => (
-                  <tr key={cat.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors text-center text-sm font-medium text-gray-600">
-                    <td className="py-4 px-6">{cat.id}</td>
-                    <td className="py-4 px-6 font-bold text-gray-800">{cat.name}</td>
+                  <tr key={cat.id} className="border-b border-ui-border hover:bg-ui-mainBg transition-colors text-center text-sm">
+                    <td className="py-4 px-6 text-content-subtitle">{cat.id}</td>
+                    <td className="py-4 px-6 font-bold text-content-paragraph">{cat.name}</td>
                     <td className="py-4 px-6">
                       <div className="flex items-center justify-center gap-2">
                         <button
