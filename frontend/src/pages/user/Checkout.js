@@ -1,0 +1,155 @@
+import { useEffect, useRef, useState } from 'react';
+import { ArrowRight, CheckCircle2, ArrowLeftRight, MapPin } from 'lucide-react';
+import Navbar from '../../components/common/Navbar';
+import { useCart } from '../../context/cartContext';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/authContext';
+import { createOrderApi } from '../../api/orderService';
+import toast from 'react-hot-toast';
+import { formatPrice } from '../../utils/formatters';
+
+export default function Checkout() {
+  const { cartItems, cartTotal } = useCart();
+  const { isLoggedIn } = useAuth();
+  const navigate = useNavigate();
+  const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [isPlacing, setIsPlacing] = useState(false);
+  const [errors, setErrors] = useState({ success: true });
+
+  const inputRef = useRef(null);
+  const placingRef = useRef(false);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    inputRef.current?.focus();
+  }, [])
+
+  useEffect(() => {
+    return () => { placingRef.current = false; };
+  }, []);
+
+  const handlePlaceOrder = async () => {
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
+
+    if (!deliveryAddress.trim()) {
+      toast.error('Please enter a delivery address');
+      return;
+    }
+
+    if (placingRef.current) return;
+    placingRef.current = true;
+    setIsPlacing(true);
+    const orderData = {
+      items: cartItems.map(item => ({
+        menu_item_id: item.id,
+        quantity: item.quantity,
+      })),
+      delivery_address: deliveryAddress.trim(),
+    };
+
+    const result = await createOrderApi(orderData);
+    placingRef.current = false;
+    setIsPlacing(false);
+
+    if (result.success) {
+      toast.success('Order placed successfully!');
+      navigate('/order-success', { replace: true, state: { orderId: result.data.id } });
+    } else {
+      setErrors(result);
+      toast.error(result.message || 'Failed to place order');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-ui-mainBg pb-12">
+      <Navbar />
+
+      <main id="main-content" className="max-w-xl mx-auto mt-8 md:mt-12 px-6">
+        <h1 className="text-3xl md:text-4xl font-bold text-center text-content-paragraph mb-10 tracking-tight">
+          Checkout
+        </h1>
+
+        {/* Delivery Address */}
+        <section className="bg-ui-white rounded-2xl p-8 mb-6 border border-ui-border">
+          <h2 className="text-xs font-black text-content-subtitle uppercase tracking-[0.2em] mb-4">Delivery Address</h2>
+          <div className="relative">
+            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-content-subtitle" size={18} />
+            <input
+              type="text"
+              ref={inputRef}
+              value={deliveryAddress}
+              onChange={(e) => { setDeliveryAddress(e.target.value); setErrors({ success: true }); }}
+              placeholder="Enter your full delivery address..."
+              name="deliveryAddress"
+              aria-label="Delivery address"
+              className={`w-full bg-ui-mainBg py-4 pl-12 pr-4 rounded-2xl text-sm outline-none border transition-all ${errors?.success ? 'border-brand-primary' : 'border-red-500'}`}
+            />
+          </div>
+        </section>
+
+        {/* Payment Method */}
+        <section className="bg-ui-white rounded-2xl p-8 mb-6 border border-ui-border">
+          <h2 className="text-xs font-black text-content-subtitle uppercase tracking-[0.2em] mb-4">Payment Method</h2>
+          <div className="flex items-center justify-between p-5 rounded-2xl border-2 transition-all duration-300 cursor-pointer border-brand-primary bg-white">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-ui-mainBg rounded-xl"><ArrowLeftRight size={20} className="text-content-paragraph" /></div>
+              <p className="text-sm font-bold text-content-paragraph">Bank Transfer</p>
+            </div>
+            <CheckCircle2 size={22} className="text-brand-primary" />
+          </div>
+        </section>
+
+        {/* Order Summary */}
+        <section className="bg-ui-white rounded-2xl p-8 border border-ui-border">
+          <h2 className="text-xs font-black text-content-subtitle uppercase tracking-[0.2em] mb-8">Order Summary</h2>
+
+          <div className="space-y-6">
+            {cartItems.map((item) => (
+              <div key={item.id} className="flex items-center justify-between">
+                <div className="flex gap-4">
+                  <div className="relative">
+                    <img src={item.image_url} alt={item.name} className="w-16 h-16 rounded-2xl object-cover border border-ui-border" loading="lazy" />
+                    <span className="absolute -top-2 -right-2 bg-brand-primary text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">
+                      {item.quantity}
+                    </span>
+                  </div>
+                  <div className="flex flex-col justify-center">
+                    <h4 className="text-sm font-bold text-content-paragraph">{item.name}</h4>
+                    <span className="text-xs text-brand-primary font-medium"> Quantity: {item.quantity}</span>
+                  </div>
+                </div>
+                <span className="text-sm font-bold text-content-paragraph">{formatPrice(item.price * item.quantity)}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="border-t border-content-paragraph mt-8 pt-6 flex justify-between items-center">
+            <span className="text-sm font-bold text-content-paragraph uppercase tracking-wider">Total Amount</span>
+            <span className="text-3xl font-black text-brand-primary">{formatPrice(cartTotal)}</span>
+          </div>
+        </section>
+
+        <button
+          onClick={handlePlaceOrder}
+          disabled={isPlacing || !deliveryAddress.trim()}
+          className="w-full mt-10 bg-brand-primary text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-brand-hover transition-all transform active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+        >
+          {isPlacing ? (
+            <>
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Placing Order...
+            </>
+          ) : (
+            <>
+              Place Order
+              <ArrowRight size={22} />
+            </>
+          )}
+        </button>
+      </main>
+    </div>
+  );
+}

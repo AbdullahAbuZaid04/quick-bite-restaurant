@@ -1,0 +1,158 @@
+import { ArrowRight, User, Mail, Lock, EyeOff, Eye } from "lucide-react";
+import Navbar from "../../components/common/Navbar";
+import authWebp from "../../assets/auth.webp";
+import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "../../hooks/useForm";
+import { useAuth } from "../../context/authContext";
+import { useCart } from "../../context/cartContext";
+
+export default function Register() {
+  const navigate = useNavigate();
+  const { register } = useAuth();
+  const { cartItems } = useCart();
+
+  const { formData, errors, setErrors, showPassword, setShowPassword, handleChange, handleSubmit, loading } = useForm({
+    fullName: "",
+    email: "",
+    password: ""
+  }, onSuccess, "register");
+
+  async function onSuccess() {
+    const result = await register(formData.fullName, formData.email, formData.password);
+    if (result.success) {
+      const registeredUser = result.user;
+      if (cartItems.length > 0) {
+        navigate("/checkout");
+      } else if (registeredUser.role === "admin") {
+        navigate("/dashboard");
+      } else {
+        navigate("/");
+      }
+    } else {
+      setErrors({ ...errors, server: result.error });
+    }
+  }
+
+
+
+  return (
+    <div className="min-h-screen bg-ui-mainBg">
+      <Navbar />
+
+      <main id="main-content" className="flex flex-1 justify-center items-center overflow-hidden p-4">
+        <section className="flex bg-ui-white rounded-2xl overflow-hidden max-w-5xl w-full flex-col md:flex-row min-h-[600px]">
+
+          <div className="p-8  w-full md:w-1/2 flex flex-col justify-center bg-ui-white">
+            <div className="mb-10 text-center">
+              <h1 className="text-4xl font-bold text-content-paragraph mb-3 tracking-tighter">
+                Create Account
+              </h1>
+              <p className="text-content-subtitle text-sm leading-relaxed">
+                Join Quick Bite to start ordering your favorite flavors.
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit} noValidate className="space-y-5">
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-content-subtitle uppercase tracking-[0.2em] ml-1" htmlFor="full-name">
+                  Full Name
+                </label>
+                <div className="relative group">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-content-subtitle group-focus-within:text-brand-primary transition-colors" size={18} />
+                  <input
+                    className={`w-full bg-ui-mainBg border ${errors.fullName ? "border-red-500" : "border-ui-border"} rounded-2xl py-4 pl-12 pr-4 focus:border-brand-primary outline-none transition-all text-sm placeholder:text-gray-400`}
+                    type="text"
+                    id="full-name"
+                    name="fullName"
+                    onChange={handleChange}
+                    value={formData.fullName}
+                    placeholder="e.g. Ahmad Hassan"
+                  />
+                </div>
+                {errors.fullName && (
+                  <p className="text-red-500 text-sm mt-2">{errors.fullName}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-content-subtitle uppercase tracking-[0.2em] ml-1" htmlFor="email">
+                  Email Address
+                </label>
+                <div className="relative group">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-content-subtitle group-focus-within:text-brand-primary transition-colors" size={18} />
+                  <input
+                    className={`w-full bg-ui-mainBg border ${errors.email || errors.server ? "border-red-500" : "border-ui-border"} rounded-2xl py-4 pl-12 pr-4 focus:border-brand-primary outline-none transition-all text-sm placeholder:text-gray-400`}
+                    type="email"
+                    id="email"
+                    name="email"
+                    onChange={handleChange}
+                    value={formData.email}
+                    placeholder="name@example.com"
+                  />
+                </div>
+                {(errors.email || errors.server) && (
+                  <p className="text-red-500 text-sm mt-2">{errors.email || errors.server}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold text-content-subtitle uppercase tracking-[0.2em] ml-1" htmlFor="password">
+                  Password
+                </label>
+                <div className="relative group">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-content-subtitle group-focus-within:text-brand-primary transition-colors" size={18} />
+                  <input
+                    className={`w-full bg-ui-mainBg border ${errors.password ? "border-red-500" : "border-ui-border"} rounded-2xl py-4 pl-12 pr-12 focus:border-brand-primary outline-none transition-all text-sm`}
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    name="password"
+                    onChange={handleChange}
+                    value={formData.password}
+                    placeholder="••••••••"
+                  />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Hide password" : "Show password"} className="absolute right-4 top-1/2 -translate-y-1/2 text-content-subtitle hover:text-brand-primary transition-colors">
+                    {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="text-red-500 text-sm mt-2">{errors.password}</p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-brand-primary hover:bg-brand-hover disabled:bg-orange-300 disabled:cursor-not-allowed text-ui-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all duration-300 mt-8 transform active:scale-[0.98] group"
+              >
+                {loading && (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                )}
+                {loading ? 'Creating account...' : 'Create Account'}
+                {!loading && <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />}
+              </button>
+            </form>
+
+            <p className="text-center text-sm text-content-subtitle mt-10 font-medium">
+              Already have an account?{" "}
+              <Link to="/login" className="text-brand-primary font-bold hover:underline ml-1">
+                Log in
+              </Link>
+            </p>
+          </div>
+
+          <div className="hidden md:block w-1/2">
+            <img
+              src={authWebp}
+              alt=""
+              role="presentation"
+              loading="lazy"
+              width={600}
+              height={600}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
